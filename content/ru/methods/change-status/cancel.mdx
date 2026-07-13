@@ -1,0 +1,62 @@
+# Отмена
+
+**Условие:** заказ должен быть в статусе «completed»/«Успешный заказ»
+
+- Рассрочка по заказу клиента одобрена (статус completed/успешный заказ)
+- Мерчант отправляет статус "canceled" по API
+- Система изменяет статус на "canceled"/"отменён"
+
+**Метод:** PUT
+
+**URL**
+- DEV: `https://dev.bnpl.kz/api/accounting/v1/changeStatus/json`
+- STAGE: `https://stage.bnpl.kz/api/accounting/v1/changeStatus/json`
+
+## Пример запроса
+
+```bash
+curl -X 'PUT' \
+  'https://dev.bnpl.kz/api/accounting/v1/changeStatus/json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '[
+  {
+    "merchantId": "string",
+    "orders": [
+      {
+        "amount": int,
+        "orderId": "string",
+        "status": "string"
+      }
+    ]
+  }
+]'
+```
+
+## Успешный ответ
+
+```json
+{
+  "messageId": "",
+  "SuccessfulResponses": [
+    {
+      "error": "false",
+      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "merchantOrderId": "000000"
+    }
+  ],
+  "ErrorResponses": []
+}
+```
+
+<ApiPlayground
+  method="PUT"
+  devUrl="https://dev.bnpl.kz/api/accounting/v1/changeStatus/json"
+  stageUrl="https://stage.bnpl.kz/api/accounting/v1/changeStatus/json"
+  fields={[
+    { name: 'merchantId', type: 'string', required: true },
+    { name: 'orderId', type: 'string', required: true },
+    { name: 'amount', type: 'number', required: true },
+    { name: 'status', type: 'string', required: true, defaultValue: 'canceled' }
+  ]}
+/>
