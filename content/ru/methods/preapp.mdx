@@ -1,0 +1,168 @@
+# Получение статуса преаппа
+
+По двум методам ниже можно получить статус преаппа непосредственно по идентификатору преаппа или по номеру заказа Мерчанта.
+
+| Статусы преаппа | Описание |
+| --- | --- |
+| received | Преапп создан |
+| pending | В процессе |
+| scoring_declined | Отказ скоринга |
+| scoring_failed | Техническая ошибка внешних сервисов |
+| merchant_awaiting | Ожидаем подтверждение от мерчанта |
+| merchant_confirmed | Мерчант подтвердил |
+| merchant_declined | Мерчант отказал |
+| merchant_unavailable | Ожидаем подтверждение от мерчанта |
+| client_declined | Клиент отказался |
+| completed | Преапп оформлен |
+| delivered | Доставлен |
+| canceled | Отменен |
+| return | Полный возврат |
+| return_final | Полный возврат |
+| part_return | Частичный возврат |
+| buyed | Выкуплен |
+
+## Получение статуса по preappID
+
+| Метод | GET |
+| --- | --- |
+| URL | `bnpl/preapp/{id}/status` |
+| Описание | Данный метод возвращает статусы преаппов |
+| Формат ответа | JSON |
+| Статус ответа | 200 — В случае успешного сценария |
+|  | 400 — В случае ошибки |
+|  | 401 — Аутентификация не пройдена |
+|  | 500 — Неизвестная ошибка |
+
+#### Curl запроса
+
+```
+curl --location --request GET \
+'https://dev.bnpl.kz/api/bnpl/preapp/{id}/status' \
+--header 'Authorization: Bearer {token}'
+```
+
+_Если интеграция происходит на stage среде, запрос необходимо отправлять на адрес `https://stage.bnpl.kz/api/bnpl/preapp/{id}/status`_
+
+#### Структура запроса
+
+| Параметр | Расположение | Описание | Тип |
+| --- | --- | --- | --- |
+| Authorization | header | Авторизация | Bearer token |
+| id | path | preappId | string |
+
+#### Ответ
+
+```json
+{
+"status":"received"
+}
+```
+
+#### Структура ответа
+
+| Параметр | Описание | Тип |
+| --- | --- | --- |
+| status | Статус преаппа | string |
+
+#### Ответ ошибки
+
+```json
+{
+    "error": {
+        "code": int,
+        "message": "string"
+    }
+}
+```
+
+#### Ответ ошибки при валидации
+
+```json
+{
+    "error": {
+        "code": int,
+        "details": [
+            {
+                "@type": "string",
+                "error": "string",
+                "field": "string"
+            }
+        ],
+        "message": "string",
+        "prefix": "string"
+    }
+}
+```
+
+## Получение статуса по номеру заказа
+
+| Метод | GET |
+| --- | --- |
+| URL | `bnpl/bill/{billNumber}/status` |
+| Описание | Данный метод возвращает статусы преаппов по номеру заказа Мерчанта |
+| Формат ответа | JSON |
+| Статус ответа | 200 — В случае успешного сценария |
+|  | 400 — В случае ошибки |
+|  | 401 — Аутентификация не пройдена |
+|  | 500 — Неизвестная ошибка |
+
+#### Curl запроса
+
+```
+curl --location --request GET \
+'https://dev.bnpl.kz/api/bnpl/bill/{billnumber}/status' \
+--header 'Authorization: Bearer {token}'
+```
+
+_Если интеграция происходит на stage среде, запрос необходимо отправлять на адрес `https://stage.bnpl.kz/api/bnpl/bill/{billnumber}/status`_
+
+#### Структура запроса
+
+| Параметр | Расположение | Описание | Тип |
+| --- | --- | --- | --- |
+| Authorization | header | Авторизация | Bearer token |
+| billNumber | path | Номер заказа мерчанта | string |
+
+#### Ответ
+
+```json
+{
+"status":"received"
+}
+```
+
+#### Структура ответа
+
+| Параметр | Описание | Тип |
+| --- | --- | --- |
+| status | Статус преаппа | string |
+
+#### Ответ ошибки
+
+```json
+{
+    "error": {
+        "code": int,
+        "message": "string"
+    }
+}
+```
+
+#### Ответ ошибки при валидации
+
+```json
+{
+    "error": {
+        "code": int,
+        "details": [
+            {
+                "@type": "string",
+                "error": "string",
+                "field": "string"
+            }
+        ],
+        "message": "string",
+        "prefix": "string"
+    }
+}
+```

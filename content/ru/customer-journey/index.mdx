@@ -1,0 +1,29 @@
+# Интерфейс клиентского пути
+
+### Редирект
+
+![Оформите рассрочку](https://bnpl.kz/dev-portal/_next/static/media/step_1.e1631254.png)
+![Подтвердите номер телефона](https://bnpl.kz/dev-portal/_next/static/media/step_2.fe9050cb.png)
+![Скоринг](https://bnpl.kz/dev-portal/_next/static/media/step_3.c3f5083f.png)
+![Одобрение](https://bnpl.kz/dev-portal/_next/static/media/step_5.9b1749ca.png)
+
+По нажатию кнопки "Перейти к оплате" партнер отправляет на Backend BNPL пакет данных для создания предзаявки
+
+Партнер перенаправляет клиента по полученной ссылке (redirectLink)
+
+##### Пример redirectLink на внешнем тестовом стенде
+
+```
+https://dev.bnpl.kz/scoring/?preapp=ec162f55-e0a9-5f89-fa39-2720c8fc80a2&phone=&link=https%3A%2F%2Fwww.flip.kz
+```
+
+### Виджет (Модальное окно)
+
+**Виджет** (в рамках понятии продукта BNPL) – js библиотека, которая позволяет оформить продукт на странице чекаута мерчанта, без редиректа клиента в наш UI. С демо можно ознакомиться тут.
+
+_\*Мы рекомендуем использовать данный метод для бесшовной интеграции._
+
+![Оформите рассрочку](https://bnpl.kz/dev-portal/_next/static/media/widget_step_1.1d8fa834.jpg)
+![Подтвердите номер телефона](https://bnpl.kz/dev-portal/_next/static/media/widget_step_2.0baf419f.jpg)
+![Скоринг](https://bnpl.kz/dev-portal/_next/static/media/widget_step_3.974e0ea4.jpg)
+![Одобрение](https://bnpl.kz/dev-portal/_next/static/media/widget_step_5.e6de258b.jpg)
