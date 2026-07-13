@@ -1,5 +1,8 @@
 {
   "index": "Введение",
   "customer-journey": "Интерфейс клиентского пути",
-  "methods": "Методы"
+  "methods": "Методы",
+  "bcc-mall": "BCC Mall",
+  "installment-limit": "Лимит на рассрочку",
+  "marketing": "Маркетинг"
 }
