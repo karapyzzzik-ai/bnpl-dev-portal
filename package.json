@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
     "test": "vitest run",
     "check-content": "node scripts/check-content-parity.mjs"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
+    "pagefind": "^1.5.2",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   },

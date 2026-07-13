@@ -4,3 +4,4 @@ node_modules/
 .next/
 .vercel/
 *.log
+public/_pagefind/
