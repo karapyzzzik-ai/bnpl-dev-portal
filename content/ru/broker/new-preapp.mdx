@@ -1,0 +1,120 @@
+# Создание заявки
+
+| Метод | POST |
+| --- | --- |
+| URL | `bnpl/broker/v2/preapp` |
+| Описание | Создание преаппки по брокеру |
+| Формат ответа | JSON |
+| Статус ответа | 200 — В случае успешного сценария |
+|  | 400 — В случае ошибки |
+|  | 401 — Аутентификация не пройдена |
+|  | 500 — Неизвестная ошибка |
+
+## Запрос
+
+```json
+{
+  "partnerCode": "string",
+  "billNumber": "string",
+  "billAmount": 0,
+  "expiresAt": "2023-09-07T10:49:10.156Z",
+  "failRedirect": "string",
+  "successRedirect": "string",
+  "postLink": "string",
+  "iin": "string",
+  "phoneNumber": "string",
+  "items": [
+    {
+      "itemId": "string",
+      "itemName": "string",
+      "itemCategory": "string",
+      "itemQuantity": 0,
+      "itemPrice": 0,
+      "itemSum": 0
+    }
+  ]
+}
+```
+
+### Структура
+
+| Параметр | Тип | Обязательно | Описание | Правила валидации |
+| --- | --- | --- | --- | --- |
+| Authorization | header | Авторизация | Bearer token | |
+| partnerCode | string | Да | Код мерчанта | |
+| billNumber | string | Да | Номер заказа в системе партнера (уникален в рамках платформы партнера) | - |
+| billAmount | uint | Да | Сумма заказа в тенге | 6000 т < billAmount < 200 000 т |
+| expires_at | ISO8601 Справка **2021-12-01T15:59:00.680+06:00** | Нет | Дата и время истечения срока оформления заявки (если платформой партнера предусмотрено истечение срока заказа). При пустом значении - основная заявка преаппа, после редиректа клиента живет сутки. | |
+| successRedirect | string | Да | Ссылка, на которую следует перенаправить клиента при успешном оформлении услуги (Вернуться в магазин) | - |
+| failRedirect | string | Нет | Ссылка, на которую следует следует перенаправить клиента при неудачном оформлении услуги | - |
+| postLink | string | Да | Ссылка на API партнера для возврата статусов | - |
+| iin | string | Да | ИИН клиента | 12 символов. Валидация на корректный ИИН |
+| phoneNumber | string | Да | Номер телефона клиента | 11 цифр; первые две цифры - 77 |
+| items | struct | Да | Данные по товарам | - |
+| items: itemId | string | Да | Идентификатор товара | - |
+| items: itemName | string | Да | Наименование товара | - |
+| items: itemCategory | string | Нет | Категория товара | - |
+| items: itemQuantity | uint | Да | Количество товара | - |
+| items: itemPrice | uint | Да | Стоимость товара | - |
+| items: itemSum | uint | Да | Итоговая сумма товара | - |
+
+### Успешный ответ
+
+```json
+{
+  "id": "0db69d6c-d152-a54d-8d15-5617017e69cb"
+}
+```
+
+### Ответ ошибки при валидации
+
+```json
+{
+  "error": {
+    "code": 0,
+    "message": "string",
+    "prefix": "string",
+    "details": [
+      {
+        "@type": "string",
+        "error": "string",
+        "field": "string"
+      }
+    ]
+  }
+}
+```
+
+### Ответ ошибки
+
+```json
+{
+  "error": {
+    "code": 0,
+    "message": "string"
+  }
+}
+```
+
+<ApiPlayground
+  method="POST"
+  devUrl="https://dev.bnpl.kz/api/bnpl/broker/v2/preapp"
+  stageUrl="https://bnpl.kz/api/bnpl/broker/v2/preapp"
+  fields={[
+    { name: 'partnerCode', type: 'string', required: true },
+    { name: 'billNumber', type: 'string', required: true },
+    { name: 'billAmount', type: 'number', required: true },
+    { name: 'expiresAt', type: 'string', required: false },
+    { name: 'successRedirect', type: 'string', required: true },
+    { name: 'failRedirect', type: 'string', required: false },
+    { name: 'postLink', type: 'string', required: true },
+    { name: 'iin', type: 'string', required: true },
+    { name: 'phoneNumber', type: 'string', required: true },
+    { name: 'itemId', type: 'string', required: true },
+    { name: 'itemName', type: 'string', required: true },
+    { name: 'itemCategory', type: 'string', required: false },
+    { name: 'itemQuantity', type: 'number', required: true },
+    { name: 'itemPrice', type: 'number', required: true },
+    { name: 'itemSum', type: 'number', required: true }
+  ]}
+/>

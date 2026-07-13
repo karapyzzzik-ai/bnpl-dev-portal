@@ -1,0 +1,65 @@
+# Получение одобренных предложений
+
+На указанный postlink в /preapp получите результат завершения скоринга:
+
+## Структура
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| id | uid | Да | Идентификатор заявки BNPL |
+| billNumber | string | Да | Номер заказа мерчанта |
+| status | string | Да | Статус скоринга: PREAPPROVED/DECLINED |
+| code | string | Да | Код продукта: BNPL4 |
+| billAmount | string | Да | Сумма заказа |
+| terms | string | Да | 4 |
+| monthly_payment | string | Да | Ежемесячный платеж |
+
+## Запрос
+
+```json
+{
+"id": "0db69d6c-d152-a54d-8d15-5617017e69cb",
+"billNumber": "",
+"status": "preapproved",
+"signature": "5af89c388202a2d8e28d6f626323c5d9dfd33c2b1cabc00bcfecf1d94a31f9a0"
+"offers": [
+    {
+      "terms": 4,
+      "billAmount": "200000.00",
+      "code": "BNPL4",
+      "monthly_payment": "50000.00"
+    }
+]
+}
+```
+
+Алгоритм генерации signature:
+
+Алгоритм расчета такой же, как и в запросе postlink c тем различием, что добавляется подпись массива offers.
+
+```
+hmac(sha512('"status" + ":" + statusValue + ":" + "preappId" + ":" + preappIdValue + ":" + "billNumber" + ":" + billNumberValue' + ":" + "offers" + ":" + offersSignature', secretKey)
+hmac(sha512("status:completed:preappId:7d301c9c-6291-4016-b951-cf58d6605685:billNumber:100:offers:7d301c9c-6291-4016-b951-cf58d6605685", 'Partner.code'))
+```
+
+Вычисление подписи массива offers:
+
+Нам нужно рассчитать хэш для каждого элемента массива.
+
+```
+hmac(sha512('"terms" + ":" + termsValue + ":" + "billAmount" + ":" + billAmountValue + ":" + "code" + ":" + codeValue' + ":" + "monthly_payment" + ":" + monthlyPaymentValue', secretKey)
+hmac(sha512("terms:4:billAmount:200000.00:code:BNPL4:monthly_payment:50000.00", 'Partner.code'))
+```
+
+Далее, полученные хэши также сконкатенировать через тот же разделитель и полученный итоговый хэш добавить в offers.
+
+```
+hmac(sha512('hash1 + ":" + hash2 + ":" + hash3 + ":" + ":" + hash... + ":" + ":" + hashN + ":"', secretKey)
+hmac(sha512("7d301c9c-6291-4016-b951-cf58d6605685:7d301c9c-6291-4016-b951-cf58d6605685:7d301c9c-6291-4016-b951-cf58d6605685:code:BNPL4:monthly_payment:50000.00", 'Partner.code'))
+```
+
+Со своей стороны брокер по тому же принципу хэширует и проверяет валидность сигнатуры
+
+Ожидаем успешный ответ HTTP код 200 без body
+
+Иначе: Делаем ретрай каждые 10 сек 3 раза до получения успешного ответа.
