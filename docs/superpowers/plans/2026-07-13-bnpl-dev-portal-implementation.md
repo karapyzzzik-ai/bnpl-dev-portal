@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Content scope is the entire existing dev-portal: Введение, Customer journey, Методы (Авторизация, Скоринг, Изменение статуса заказа × 4, Получение статуса заказа), BCC Mall, Лимит на рассрочку, Маркетинг. No invented content.
+- Content scope is the entire existing dev-portal, per the real 28-URL site map in `data/source-urls.json` (Task 3) — not the narrower list originally guessed in this plan. Real path prefix is `/dev-portal/docs-api/...` (not `/dev-portal/...` directly). Sections: Введение (root), Customer journey (+ `widget`, `android-biometry` subpages), Методы (Авторизация, Скоринг, Изменение статуса заказа × 4, Получение статуса заказа), BCC Mall (+ `api` subpage), Лимит на рассрочку (+ `get-limit-data` subpage), Маркетинг (+ `card-product`, `payment-schedule` subpages), **FAQ** (`general`, `post-service`), and **Документация брокера / docs-broker** (`authorization`, `get-scoring`, `new-preapp`, `approve`, `get-status`) — the latter two sections were discovered during Task 3's real site crawl and are in scope per explicit user confirmation. No invented content.
 - Stack must be Next.js-based (Nextra), matching the original site.
 - Two locales: `ru` (primary/source of truth) and `en` (translation; technical identifiers like `orderId`, `merchantId`, `delivered`, `buyed` stay untranslated).
 - Theme: light "Clean Light" (blue accent, ~`#2563eb`) as default, dark theme available via toggle.
@@ -404,7 +404,10 @@ git commit -m "Add source URL map from firecrawl_map"
 
 **Files:**
 - Modify: `content/ru/index.mdx` (replace placeholder with real scraped intro content)
-- Create: `content/ru/customer-journey.mdx`
+- Create: `content/ru/customer-journey/index.mdx`
+- Create: `content/ru/customer-journey/widget.mdx`
+- Create: `content/ru/customer-journey/android-biometry.mdx`
+- Create: `content/ru/customer-journey/_meta.json`
 - Create: `content/ru/methods/index.mdx`
 - Create: `content/ru/methods/auth.mdx`
 - Create: `content/ru/methods/scoring.mdx`
@@ -413,21 +416,23 @@ git commit -m "Add source URL map from firecrawl_map"
 - Modify: `content/ru/_meta.json`
 
 **Interfaces:**
-- Consumes: `data/source-urls.json` from Task 3.
+- Consumes: `data/source-urls.json` from Task 3 (the real 28-URL map; real prefix is `/dev-portal/docs-api/...`).
 - Produces: the `methods/_meta.json` ordering and `methods/change-status/` slot that Task 5 adds to.
 
 - [ ] **Step 1: Scrape each URL**
 
-For each of these URLs from `data/source-urls.json`, call the Firecrawl MCP `firecrawl_scrape` tool (format: markdown) and keep the returned markdown for the next step:
-- `https://bnpl.kz/dev-portal/`
-- `https://bnpl.kz/dev-portal/customer-journey/`
-- `https://bnpl.kz/dev-portal/methods/`
-- `https://bnpl.kz/dev-portal/methods/scoring/`
-- `https://bnpl.kz/dev-portal/methods/preapp/`
+For each of these real URLs from `data/source-urls.json`, call the Firecrawl MCP `firecrawl_scrape` tool (format: markdown) and keep the returned markdown for the next step:
+- `https://bnpl.kz/dev-portal/` (root — install/intro content)
+- `https://bnpl.kz/dev-portal/docs-api/customer-journey/`
+- `https://bnpl.kz/dev-portal/docs-api/customer-journey/widget/`
+- `https://bnpl.kz/dev-portal/docs-api/customer-journey/android-biometry/`
+- `https://bnpl.kz/dev-portal/docs-api/methods/`
+- `https://bnpl.kz/dev-portal/docs-api/methods/scoring/`
+- `https://bnpl.kz/dev-portal/docs-api/methods/preapp/`
 
 If a page's content looks incomplete (collapsed sections not expanded, e.g. "Запрос" / "Пример запроса" / "Структура запроса" toggles), fall back to the Playwright MCP: `browser_navigate` to the URL, `browser_click` each collapsed toggle, then `browser_snapshot` to read the revealed text.
 
-Auth: the original nav shows "Авторизация" linking to `https://bnpl.kz/dev-portal/docs-api/methods/` (same page as the methods index) — check the scraped `methods/` page for an auth-specific section; if the site keeps auth details on a distinct URL, add that URL to `data/source-urls.json` first and scrape it.
+Auth: the nav shows "Авторизация" linking to `https://bnpl.kz/dev-portal/docs-api/methods/` (same page as the methods index) — check the scraped `methods/` page for an auth-specific section for `methods/auth.mdx`.
 
 - [ ] **Step 2: Write each MDX file with real content and frontmatter**
 
@@ -440,7 +445,18 @@ Use this shape (shown for `content/ru/index.mdx` — repeat the pattern with eac
      preserving headings, lists, and any code blocks as-is. -->
 ```
 
-Each file must contain the **actual scraped text** for that page — not a placeholder. `methods/auth.mdx` covers authorization; `methods/scoring.mdx` covers "Создание заявки и получение результатов скоринга" (keep the curl example, request/response structure, and field tables from the source); `methods/preapp.mdx` covers "Получение статуса заказа".
+Each file must contain the **actual scraped text** for that page — not a placeholder. `customer-journey/index.mdx` is the customer-journey landing page; `customer-journey/widget.mdx` and `customer-journey/android-biometry.mdx` are its two sub-pages. `methods/auth.mdx` covers authorization; `methods/scoring.mdx` covers "Создание заявки и получение результатов скоринга" (keep the curl example, request/response structure, and field tables from the source); `methods/preapp.mdx` covers "Получение статуса заказа".
+
+- [ ] **Step 2b: Write `content/ru/customer-journey/_meta.json`**
+
+```json
+{
+  "index": "Интерфейс клиентского пути",
+  "widget": "Виджет",
+  "android-biometry": "Биометрия (Android)"
+}
+```
+(Adjust the two sub-page labels to match their actual scraped page titles if different.)
 
 - [ ] **Step 3: Write `content/ru/methods/_meta.json`**
 
@@ -468,6 +484,8 @@ Each file must contain the **actual scraped text** for that page — not a place
 Run: `npm run dev`, then:
 ```
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/customer-journey
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/customer-journey/widget
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/customer-journey/android-biometry
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/methods/scoring
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/methods/preapp
 ```
@@ -569,7 +587,7 @@ curl -X 'PUT' \
 
 - [ ] **Step 2: Scrape and write `cancel.mdx`, `return.mdx`, `part-return.mdx`**
 
-For each of `https://bnpl.kz/dev-portal/methods/change-status/cancel/`, `.../return/`, `.../part-return/`: call `firecrawl_scrape` (falling back to Playwright MCP click+snapshot for any collapsed sections, same as Task 4 Step 1), then write an MDX file following the **exact same structure** as `delivery.mdx` above (title, bullet flow, Метод/URL, curl example, explanation prose, success/error JSON, `<ApiPlayground>` block with that page's real field names and `status` default value, e.g. `cancelled`/`returned` — read the real value from the scraped success-response JSON, don't guess).
+For each of `https://bnpl.kz/dev-portal/docs-api/methods/change-status/cancel/`, `.../return/`, `.../part-return/`: call `firecrawl_scrape` (falling back to Playwright MCP click+snapshot for any collapsed sections, same as Task 4 Step 1), then write an MDX file following the **exact same structure** as `delivery.mdx` above (title, bullet flow, Метод/URL, curl example, explanation prose, success/error JSON, `<ApiPlayground>` block with that page's real field names and `status` default value, e.g. `cancelled`/`returned` — read the real value from the scraped success-response JSON, don't guess).
 
 - [ ] **Step 3: Write `content/ru/methods/change-status/_meta.json`**
 
@@ -605,14 +623,30 @@ git commit -m "Add RU content: change-status group (delivery/cancel/return/part-
 ### Task 6: RU content — BCC Mall, Лимит на рассрочку, Маркетинг
 
 **Files:**
-- Create: `content/ru/bcc-mall.mdx`
-- Create: `content/ru/installment-limit.mdx`
-- Create: `content/ru/marketing.mdx`
+- Create: `content/ru/bcc-mall/index.mdx`
+- Create: `content/ru/bcc-mall/api.mdx`
+- Create: `content/ru/bcc-mall/_meta.json`
+- Create: `content/ru/installment-limit/index.mdx`
+- Create: `content/ru/installment-limit/get-limit-data.mdx`
+- Create: `content/ru/installment-limit/_meta.json`
+- Create: `content/ru/marketing/index.mdx`
+- Create: `content/ru/marketing/card-product.mdx`
+- Create: `content/ru/marketing/payment-schedule.mdx`
+- Create: `content/ru/marketing/_meta.json`
 - Modify: `content/ru/_meta.json`
 
 - [ ] **Step 1: Scrape and write each page**
 
-For `https://bnpl.kz/dev-portal/bcc-mall/connection/google-feed/`, `https://bnpl.kz/dev-portal/installment-limit/`, `https://bnpl.kz/dev-portal/marketing/`: call `firecrawl_scrape`, write the real returned content into the corresponding MDX file with a top-level `#` heading matching the sidebar label (see `_meta.json` below). If BCC Mall's content spans more than the single `google-feed` sub-page in the source nav, scrape and include those sibling pages too, nesting them under `content/ru/bcc-mall/` with their own `_meta.json` instead of a single flat file.
+Scrape and write, one MDX file per real URL from `data/source-urls.json`:
+- `https://bnpl.kz/dev-portal/docs-api/bcc-mall/connection/google-feed/` → `bcc-mall/index.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/bcc-mall/api/` → `bcc-mall/api.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/installment-limit/` → `installment-limit/index.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/installment-limit/get-limit-data/` → `installment-limit/get-limit-data.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/marketing/` → `marketing/index.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/marketing/card-product/` → `marketing/card-product.mdx`
+- `https://bnpl.kz/dev-portal/docs-api/marketing/payment-schedule/` → `marketing/payment-schedule.mdx`
+
+Each file's top-level `#` heading should match its real scraped page title. Write a `_meta.json` per folder (`bcc-mall/_meta.json`, `installment-limit/_meta.json`, `marketing/_meta.json`) ordering `index` first, then sub-pages with their real titles as labels.
 
 - [ ] **Step 2: Update `content/ru/_meta.json`**
 
@@ -631,28 +665,157 @@ For `https://bnpl.kz/dev-portal/bcc-mall/connection/google-feed/`, `https://bnpl
 
 ```
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/bcc-mall
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/bcc-mall/api
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/installment-limit
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/installment-limit/get-limit-data
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/marketing
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/marketing/card-product
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/marketing/payment-schedule
 ```
 Expected: all `200`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add content/ru/bcc-mall.mdx content/ru/installment-limit.mdx content/ru/marketing.mdx content/ru/_meta.json
+git add content/ru/bcc-mall content/ru/installment-limit content/ru/marketing content/ru/_meta.json
 git commit -m "Add RU content: BCC Mall, installment limit, marketing"
 ```
 
 ---
 
-### Task 7: Content parity check
+### Task 7: RU content — FAQ
+
+**Files:**
+- Create: `content/ru/faq/index.mdx`
+- Create: `content/ru/faq/general.mdx`
+- Create: `content/ru/faq/post-service.mdx`
+- Create: `content/ru/faq/_meta.json`
+- Modify: `content/ru/_meta.json`
+
+**Interfaces:**
+- Consumes: `data/source-urls.json` from Task 3 (FAQ URLs).
+
+This section was discovered during Task 3's real site crawl (not in the original plan) and is in scope per explicit user confirmation to cover the entire real site.
+
+- [ ] **Step 1: Scrape and write each page**
+
+Scrape and write:
+- `https://bnpl.kz/dev-portal/FAQ/` → `faq/index.mdx`
+- `https://bnpl.kz/dev-portal/FAQ/general/` → `faq/general.mdx`
+- `https://bnpl.kz/dev-portal/FAQ/post-service/` → `faq/post-service.mdx`
+
+Use each page's real scraped title as the `#` heading. If a page turns out to be a Q&A list, preserve the question/answer structure as-is (headings or bold question + answer paragraph) rather than flattening it into plain prose.
+
+- [ ] **Step 2: Write `content/ru/faq/_meta.json`**
+
+```json
+{
+  "index": "FAQ",
+  "general": "Общие вопросы",
+  "post-service": "После подключения"
+}
+```
+(Adjust labels to match the real scraped page titles if different.)
+
+- [ ] **Step 3: Update `content/ru/_meta.json`** — add `"faq": "FAQ"` as an entry (position it last, after `marketing`, matching the source site's nav order where FAQ is a separate top-level tab).
+
+- [ ] **Step 4: Verify pages render**
+
+```
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/faq
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/faq/general
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/faq/post-service
+```
+Expected: all `200`.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add content/ru/faq content/ru/_meta.json
+git commit -m "Add RU content: FAQ"
+```
+
+---
+
+### Task 8: RU content — Документация брокера (docs-broker)
+
+**Files:**
+- Create: `content/ru/broker/index.mdx`
+- Create: `content/ru/broker/authorization.mdx`
+- Create: `content/ru/broker/get-scoring.mdx`
+- Create: `content/ru/broker/new-preapp.mdx`
+- Create: `content/ru/broker/approve.mdx`
+- Create: `content/ru/broker/get-status.mdx`
+- Create: `content/ru/broker/_meta.json`
+- Modify: `content/ru/_meta.json`
+
+**Interfaces:**
+- Consumes: `data/source-urls.json` from Task 3 (docs-broker URLs).
+- Produces: MDX pages that Task 9's `ApiPlayground` may also be embedded into (Task 10 extends to check these pages too), if these pages describe request/response API methods the same way the change-status pages do — read each page's actual content to confirm before adding `<ApiPlayground>` blocks; if a page is pure prose with no request/response shape, leave it as plain MDX.
+
+This section (broker integration docs) was discovered during Task 3's real site crawl (not in the original plan) and is in scope per explicit user confirmation to cover the entire real site.
+
+- [ ] **Step 1: Scrape each URL**
+
+Scrape:
+- `https://bnpl.kz/dev-portal/docs-broker/` → `broker/index.mdx`
+- `https://bnpl.kz/dev-portal/docs-broker/authorization/` → `broker/authorization.mdx`
+- `https://bnpl.kz/dev-portal/docs-broker/get-scoring/` → `broker/get-scoring.mdx`
+- `https://bnpl.kz/dev-portal/docs-broker/new-preapp/` → `broker/new-preapp.mdx`
+- `https://bnpl.kz/dev-portal/docs-broker/approve/` → `broker/approve.mdx`
+- `https://bnpl.kz/dev-portal/docs-broker/get-status/` → `broker/get-status.mdx`
+
+Same collapsed-section fallback as Task 4 Step 1 (Playwright MCP click+snapshot) if any page's request/response examples are hidden behind a toggle.
+
+- [ ] **Step 2: Write each MDX file**
+
+Follow the `delivery.mdx` structure from Task 5 (title, description, Метод/URL, curl example, success/error response) for any page that documents an HTTP method + endpoint. For each such page, add an `<ApiPlayground>` block with that page's real method, URL, and field names — do not reuse the change-status field names (`orderId`/`amount`/`status`) if this API's request body has a different shape; read the actual scraped request structure and generate the `fields` prop to match it exactly.
+
+- [ ] **Step 3: Write `content/ru/broker/_meta.json`**
+
+```json
+{
+  "index": "Документация брокера",
+  "authorization": "Авторизация",
+  "get-scoring": "Получение скоринга",
+  "new-preapp": "Создание заявки",
+  "approve": "Подтверждение",
+  "get-status": "Получение статуса"
+}
+```
+(Adjust labels to match the real scraped page titles if different.)
+
+- [ ] **Step 4: Update `content/ru/_meta.json`** — add `"broker": "Документация брокера"` (position after `methods`, matching the source site's nav order where broker docs are a separate top-level tab near the API docs).
+
+- [ ] **Step 5: Verify pages render**
+
+```
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker/authorization
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker/get-scoring
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker/new-preapp
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker/approve
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ru/broker/get-status
+```
+Expected: all `200` (or the expected `ApiPlayground`-undefined error until Task 11, same caveat as Task 5 — only applies to pages where you added an `<ApiPlayground>` block).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add content/ru/broker content/ru/_meta.json
+git commit -m "Add RU content: docs-broker section"
+```
+
+---
+
+### Task 9: Content parity check
 
 **Files:**
 - Create: `scripts/check-content-parity.mjs`
 - Create: `data/expected-facts.json`
 
 **Interfaces:**
-- Consumes: `content/ru/**/*.mdx` (all files from Tasks 4–6).
+- Consumes: `content/ru/**/*.mdx` (all files from Tasks 4–8).
 
 - [ ] **Step 1: Create `data/expected-facts.json`** — key facts that must survive the scrape, one entry per RU content file
 
@@ -677,7 +840,7 @@ git commit -m "Add RU content: BCC Mall, installment limit, marketing"
   ]
 }
 ```
-(Extend this file with one entry per RU page created in Tasks 4–6, using 2-3 distinctive strings/numbers you observed in that page's real scraped content — amounts, endpoint paths, status names.)
+(Extend this file with one entry per RU page created in Tasks 4–8, using 2-3 distinctive strings/numbers you observed in that page's real scraped content — amounts, endpoint paths, status names.)
 
 - [ ] **Step 2: Write `scripts/check-content-parity.mjs`**
 
@@ -723,10 +886,13 @@ git commit -m "Add content parity check against scraped RU content"
 
 ---
 
-### Task 8: EN content (translation)
+### Task 10: EN content (translation)
 
 **Files:**
-- Create: `content/en/customer-journey.mdx`
+- Create: `content/en/customer-journey/index.mdx`
+- Create: `content/en/customer-journey/widget.mdx`
+- Create: `content/en/customer-journey/android-biometry.mdx`
+- Create: `content/en/customer-journey/_meta.json`
 - Create: `content/en/methods/index.mdx`
 - Create: `content/en/methods/auth.mdx`
 - Create: `content/en/methods/scoring.mdx`
@@ -735,20 +901,38 @@ git commit -m "Add content parity check against scraped RU content"
 - Create: `content/en/methods/change-status/cancel.mdx`
 - Create: `content/en/methods/change-status/return.mdx`
 - Create: `content/en/methods/change-status/part-return.mdx`
-- Create: `content/en/bcc-mall.mdx`
-- Create: `content/en/installment-limit.mdx`
-- Create: `content/en/marketing.mdx`
+- Create: `content/en/bcc-mall/index.mdx`
+- Create: `content/en/bcc-mall/api.mdx`
+- Create: `content/en/bcc-mall/_meta.json`
+- Create: `content/en/installment-limit/index.mdx`
+- Create: `content/en/installment-limit/get-limit-data.mdx`
+- Create: `content/en/installment-limit/_meta.json`
+- Create: `content/en/marketing/index.mdx`
+- Create: `content/en/marketing/card-product.mdx`
+- Create: `content/en/marketing/payment-schedule.mdx`
+- Create: `content/en/marketing/_meta.json`
+- Create: `content/en/faq/index.mdx`
+- Create: `content/en/faq/general.mdx`
+- Create: `content/en/faq/post-service.mdx`
+- Create: `content/en/faq/_meta.json`
+- Create: `content/en/broker/index.mdx`
+- Create: `content/en/broker/authorization.mdx`
+- Create: `content/en/broker/get-scoring.mdx`
+- Create: `content/en/broker/new-preapp.mdx`
+- Create: `content/en/broker/approve.mdx`
+- Create: `content/en/broker/get-status.mdx`
+- Create: `content/en/broker/_meta.json`
 - Create: `content/en/methods/_meta.json`
 - Create: `content/en/methods/change-status/_meta.json`
 - Modify: `content/en/_meta.json`
 
 **Interfaces:**
-- Consumes: every RU file from Tasks 4–6 as the source text.
+- Consumes: every RU file from Tasks 4–8 as the source text.
 - Produces: an EN tree that mirrors the RU tree file-for-file, including identical `<ApiPlayground>` props (only the surrounding prose is translated).
 
 - [ ] **Step 1: Translate each RU file into its EN counterpart**
 
-For every file under `content/ru/` (except `index.mdx` and `_meta.json`, already done in Task 1), create the matching path under `content/en/` with the prose translated to English. Keep unchanged: code blocks, curl commands, JSON keys/values, `<ApiPlayground>` component props, and field names (`merchantId`, `orderId`, `amount`, `status`, and status values like `delivered`/`buyed`/`cancelled`/`returned`).
+For every file under `content/ru/` (except `index.mdx` and `_meta.json`, already done in Task 1), create the matching path under `content/en/` with the prose translated to English. Keep unchanged: code blocks, curl commands, JSON keys/values, `<ApiPlayground>` component props, and field names (`merchantId`, `orderId`, `amount`, `status`, and status values like `delivered`/`buyed`/`cancelled`/`returned`, plus whatever field names Task 8's broker pages actually used).
 
 - [ ] **Step 2: Mirror the `_meta.json` files with English labels**
 
@@ -772,15 +956,19 @@ For every file under `content/ru/` (except `index.mdx` and `_meta.json`, already
 }
 ```
 
+`content/en/faq/_meta.json` and `content/en/broker/_meta.json`: mirror `content/ru/faq/_meta.json` and `content/ru/broker/_meta.json` (Tasks 7 and 8) with English labels, same keys.
+
 `content/en/_meta.json`:
 ```json
 {
   "index": "Introduction",
   "customer-journey": "Customer journey interface",
   "methods": "Methods",
+  "broker": "Broker documentation",
   "bcc-mall": "BCC Mall",
   "installment-limit": "Installment limit",
-  "marketing": "Marketing"
+  "marketing": "Marketing",
+  "faq": "FAQ"
 }
 ```
 
@@ -811,7 +999,7 @@ git commit -m "Add EN translation mirroring RU content tree"
 
 ---
 
-### Task 9: ApiPlayground component — core logic (unit tested)
+### Task 11: ApiPlayground component — core logic (unit tested)
 
 **Files:**
 - Create: `components/ApiPlayground.tsx`
@@ -819,7 +1007,7 @@ git commit -m "Add EN translation mirroring RU content tree"
 - Test: `components/apiPlaygroundLogic.test.ts`
 
 **Interfaces:**
-- Produces: `buildRequestBody(fields, values): unknown[]`, `classifyFetchError(err: unknown): { kind: 'cors' | 'network' | 'http' | 'unknown'; message: string }`, and the `<ApiPlayground>` component (props: `method: string; devUrl: string; stageUrl: string; fields: Array<{ name: string; type: 'string' | 'number'; required: boolean; defaultValue?: string }>`) consumed by every change-status MDX page from Task 5/8.
+- Produces: `buildRequestBody(fields, values): unknown[]`, `classifyFetchError(err: unknown): { kind: 'cors' | 'network' | 'http' | 'unknown'; message: string }`, and the `<ApiPlayground>` component (props: `method: string; devUrl: string; stageUrl: string; fields: Array<{ name: string; type: 'string' | 'number'; required: boolean; defaultValue?: string }>`) consumed by every change-status MDX page from Tasks 5/10, and any broker pages from Task 8/10 that used an `<ApiPlayground>` block.
 
 - [ ] **Step 1: Write the failing test for `buildRequestBody`**
 
@@ -1044,13 +1232,13 @@ git commit -m "Add ApiPlayground component with tested request/error logic"
 
 ---
 
-### Task 10: Verify ApiPlayground renders on every change-status page (RU + EN)
+### Task 12: Verify ApiPlayground renders on every change-status page (RU + EN)
 
 **Files:**
-- No new files — this task only verifies Task 5/8 content against the Task 9 component.
+- No new files — this task only verifies Task 5/10 content (and any broker pages from Task 8/10 that used `<ApiPlayground>`) against the Task 11 component.
 
 **Interfaces:**
-- Consumes: `<ApiPlayground>` from Task 9, embedded in the 8 MDX files (4 RU + 4 EN) from Tasks 5 and 8.
+- Consumes: `<ApiPlayground>` from Task 11, embedded in the 8 change-status MDX files (4 RU + 4 EN) from Tasks 5 and 10, plus any broker MDX files from Tasks 8/10 that embedded it.
 
 - [ ] **Step 1: Start the dev server and re-check the previously-expected-to-fail routes**
 
@@ -1065,7 +1253,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/en/methods/change-s
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/en/methods/change-status/return
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/en/methods/change-status/part-return
 ```
-Expected: all 8 print `200` (no more `ApiPlayground is not defined` errors).
+Expected: all 8 print `200` (no more `ApiPlayground is not defined` errors). If Task 8/10 embedded `<ApiPlayground>` in any `content/{ru,en}/broker/*.mdx` file, add the same 200-check for those routes too (e.g. `http://localhost:3000/ru/broker/authorization`).
 
 - [ ] **Step 2: Manually exercise the playground once (Playwright MCP)**
 
@@ -1082,7 +1270,7 @@ git commit -m "Fix ApiPlayground integration issues found during verification"
 
 ---
 
-### Task 11: Search
+### Task 13: Search
 
 **Files:**
 - No new files expected — Nextra 3's default theme ships Pagefind-based search out of the box once content exists.
@@ -1107,7 +1295,7 @@ git commit -m "Configure search"
 
 ---
 
-### Task 12: GitHub repository and push
+### Task 14: GitHub repository and push
 
 **Files:**
 - Create: `README.md`
@@ -1161,7 +1349,7 @@ git push
 
 ---
 
-### Task 13: Vercel deployment
+### Task 15: Vercel deployment
 
 **Files:** none (external service configuration).
 
