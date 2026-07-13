@@ -1,0 +1,67 @@
+# Partial return
+
+**Condition:**
+1. The order must be in the "buyed"/"Order bought out" status
+2. The order amount after the return must be NOT LESS THAN 500 tg.
+
+- The order is delivered/bought out (order status in the system "buyed"/"order completed")
+- The merchant sends the "part_return" status via the API
+- The system changes the status to "part_return"/"partial return"
+- The system changes the status to "buyed"/"order bought out"
+
+**Method:** PUT
+
+**URL**
+- DEV: `https://dev.bnpl.kz/api/accounting/v1/changeStatus/json`
+- STAGE: `https://stage.bnpl.kz/api/accounting/v1/changeStatus/json`
+
+## Example request
+
+```bash
+curl -X 'PUT' \
+  'https://dev.bnpl.kz/accounting/v1/changeStatus/json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '[
+  {
+    "merchantId": "string",
+    "orders": [
+      {
+        "amount": int,
+        "orderId": "string",
+        "status": "string"
+      }
+    ]
+  }
+]'
+```
+
+## Successful response
+
+```json
+{
+  "messageId": "",
+  "SuccessfulResponses": [
+    {
+      "error": "false",
+      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "merchantOrderId": "000000"
+    }
+  ],
+  "ErrorResponses": []
+}
+```
+
+On full return, the `amount` field is passed the **order amount after the return**. Example: order amount 100,000 tg. and the client wants to make a return of 20,000 tg. We pass 80,000 tg. as the order amount — `"amount": 80000`.
+
+<ApiPlayground
+  method="PUT"
+  devUrl="https://dev.bnpl.kz/api/accounting/v1/changeStatus/json"
+  stageUrl="https://stage.bnpl.kz/api/accounting/v1/changeStatus/json"
+  fields={[
+    { name: 'merchantId', type: 'string', required: true },
+    { name: 'orderId', type: 'string', required: true },
+    { name: 'amount', type: 'number', required: true },
+    { name: 'status', type: 'string', required: true, defaultValue: 'part_return' }
+  ]}
+/>

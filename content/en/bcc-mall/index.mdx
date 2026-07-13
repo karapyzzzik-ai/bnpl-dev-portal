@@ -1,0 +1,188 @@
+# Process of connecting to the BCC Mall online shopping mall via Google Feed
+
+1. To test correct processing of the feed, you need to provide a direct URL to it.
+2. If the partner is already sending products to Google Merchant Center, you need to make sure that the required and additional fields are being sent.
+
+| | |
+| --- | --- |
+| Format | Google RSS 2.0. ([Link](https://support.google.com/merchants/answer/160589) to the specification from Google Merchant Center) |
+| Size | Must not exceed - 80MB or 150 thousand items |
+| Authentication | Supported:<br />- HTTP Basic Auth<br />- API Key (static token) |
+
+### Contents
+
+Table describing the feed tags used in BCC Mall.
+
+| Tag | Short description | Detailed description and recommendations |
+| --- | --- | --- |
+| **Required** |  |  |
+| g:id | Unique product ID. | This attribute must be static across feed updates. **Important:** if you send the product "Adidas yeezy 500" under an ID, then when the feed is updated, this ID must not change (i.e. you cannot send a different product under this ID) |
+| g:title | Product name. | Recommendation: in the product name it's better to specify the data the client needs, without extraneous data (about delivery, city, etc.) **Example title:** "Yeezy 500 limited edition" |
+| g:description | Product description. | **Recommendation:** it's better to send the full product description here, and send the product specifications in the `<g:product_detail>` attribute |
+| g:link | URL to the product page. | |
+| g:image_link | URL to the main product image. | This attribute is needed so that we can show the buyer the product image. If the link is broken (404 error), a placeholder with the text **(Photo temporarily unavailable)** is shown instead. |
+| g:availability | Product availability. | This attribute is needed to understand the product's availability. If the product is no longer in stock with the merchant, the value "out_of_stock" must be sent. (then the text **"Product not in stock"** appears on the product card) For this reason, feeds must be kept up to date and updated more frequently by the merchant. Available values: `in_stock`, `out_of_stock` |
+| g:price | Product price. | The original product price. If there is a discount, the discounted price must be sent in the "sale_price" attribute. **Price format:** 9 999.0 KZT (specifying the currency is optional) |
+| g:size | Size. | This attribute carries the product's size value. **Recommendation:** for the buyer's convenience, it's preferable to send the size using CIS values. Where numbers are used for shoes (39, 40, 41, etc.), and letters for clothing (S, M, L, etc.). **Important:** you cannot pass multiple values or a range of sizes in one attribute (for example "40-45", "40,41, 42, 43"); only one product value is passed within one `<item>...</item>` |
+| g:size_system | Measurement system (country). | This attribute carries the size measurement system value. Available values: RU, US, UK, EU, INT, DE, FR, JP, CN, IT, BR, MEX, AU |
+| g:product_type | Category. | This attribute carries the product's "category" and "subcategory" on the merchant's side. The full category tree must be passed in this tag. The separator can be a comma or a greater-than sign ("," or ">"). Example: Clothing > Outerwear > Jackets > Windbreakers |
+| g:color | Color. | This attribute must carry the product's "color" value. Recommendation: send the color value in "Russian" |
+| g:additional_image_link | Array with additional product images. | Additional product photos are sent in this attribute. Example of sending several photos: `<g:additional_image_link>https://example.com/images/additional-image-1.jpg</g:additional_image_link>` `<g:additional_image_link>https://example.com/images/additional-image-2.jpg</g:additional_image_link>` At least 3 additional photos are required per product. |
+| g:age_group | Age group. | This attribute carries the product's age category. Possible values: newborn, infant, toddler, kids, adult |
+| g:gender | Gender. | This attribute carries the gender value the product is for. Available values: male, female, unisex |
+| **Additional** |  |  |
+| g:item_group_id | Product group ID. | This attribute must carry the ID under which 2 or more products are grouped together. **Important:** this attribute is required if the product has several sizes and colors, so that the buyer can select the desired "size" or "color". Example: `<item>....<item_group_id>123</item_group_id>...</item>` `<item>...<item_group_id>123</item_group_id>...</item>` |
+| g:brand | Product brand. | This attribute carries the product's brand. The brand name is highlighted on the BCC Mall side in the preview and on the product card. **Example of sending a brand:** `<g:brand>Apple</g:brand>` |
+| g:sale_price | Promotional/discounted price. | The promotional/discounted price at which the merchant is currently selling the product. This price must not be less than or equal to 0. |
+| g:sale_price_effective_date | Promotional price validity period. | The time period during which the promotional/discounted price is valid. **Date format:** 2023-12-31T23:59:00+0600 (ISO 8601) |
+| g:expiration_date | Validity period. | |
+| g:availability_date | Start date. | |
+| g:condition | Product condition | This attribute carries the product's condition. Possible values for this parameter: new (only this value is accepted) |
+| **Product specifications** |  |  |
+| g:product_detail | Array of product specifications. | The details field is an array of objects. The object has fields: section, name, value. This object carries the product specification values. (optional) |
+| g:section_name | Group name | |
+| g:attribute_name | Attribute name | |
+| g:attribute_value | Attribute value | |
+| **Product parameters (depends on product type)** |  |  |
+| g:energy_efficiency_class | Energy efficiency class. | |
+| g:min_energy_efficiency_class | Minimum energy efficiency class. | |
+| g:max_energy_efficiency_class | Maximum energy efficiency class. | |
+| g:material | Product material. | This attribute carries the value of the material the product is made of. |
+| g:pattern | Pattern or print. | |
+| g:size_type | Size type. | This attribute can carry the size type for additional information to the buyer. Available values: regular, petite, maternity, big, tall, plus |
+| g:product_length | Length. | This attribute carries the product's "length" value. Format: `{length} {unit}`. Available values for "unit": cm, in. **Example:** `<g:product_length>30 cm</g:product_length>` |
+| g:product_width | Width. | This attribute carries the product's "width" value. Format: `{width} {unit}`. Available values for "unit": cm, in. **Example:** `<g:product_width>30 cm</g:product_width>` |
+| g:product_height | Height. | This attribute carries the product's "height" value. Format: `{height} {unit}`. Available values for "unit": cm, in. **Example:** `<g:product_height>5 kg</g:product_height>` |
+| g:product_weight | Weight. | This attribute carries the product's "weight" value. Format: `{weight} {unit}`. Available values for "unit": kg, lb. **Example:** `<g:product_weight>5 kg</g:product_weight>` |
+| g:product_highlight | Short description of key features. | This attribute carries information about the product's key short features. Example: `<g:product_highlight>Short description of key features</g:product_highlight>` |
+| **Pickup point information** |  |  |
+| bnpl:pickup | Array of branch addresses where the product is available | Data for one address must be passed within the `<bnpl:pickup>...</bnpl:pickup>` attribute |
+| bnpl:id | ID | Unique pickup point ID. Must not repeat across other points. Required field. |
+| bnpl:region | Region | City region. If the city has republican significance, the value may be empty. Conditionally required field. |
+| bnpl:city | City | The city point from which the item can be picked up. Required field. |
+| bnpl:street | Street | The street of the point in the city from which the item can be picked up. Required field. |
+| bnpl:building | Building number | Building number in the address. Required field. |
+| bnpl:apartment | Office number | Office number, if any. Optional field. |
+| bnpl:available | Availability flag | Flag for the product's availability at this pickup point. Required field. Available values: yes, no |
+| **New Collection information** |  |  |
+| bnpl:collection | Collection name | Carries information about the collection name. If a single (new) collection has, say, 100 products, then within these 100 products `<item>....</item>` the collection name must be passed (a tag by which we understand that the products belong to the same collection) |
+
+### Example feed layout
+
+```xml
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+    <channel>
+        <item>
+            <!--Обязательные-->
+            <g:id>100555</g:id>
+            <g:title>Название товара</g:title>
+            <g:description>
+                <![CDATA[
+                    Это описание товара.
+                ]]>
+            </g:description>
+            <g:link>https://example.com/link-to-product-page</g:link>
+            <g:image_link>https://example.com/images/main-image.jpg</g:image_link>
+            <g:availability>In stock</g:availability>
+            <g:price>9 999.0 KZT</g:price>
+
+            <!--Дополнительные-->
+            <g:product_type>Книги > Изучение языков > Какая-то литература</g:product_type>
+            <g:brand>Apple</g:brand>
+            <g:sale_price>9 899.0 KZT</g:sale_price>
+            <g:sale_price_effective_date>2023-09-25T00:00:00+0600/2023-09-30T23:59:00+0600</g:sale_price_effective_date>
+            <g:condition>new</g:condition>
+            <g:expiration_date>2023-12-31T23:59:00+0600</g:expiration_date>
+            <g:additional_image_link>https://example.com/images/additional-image-1.jpg</g:additional_image_link>
+            <g:additional_image_link>https://example.com/images/additional-image-2.jpg</g:additional_image_link>
+            <g:availability_date>2023-09-01T00:00:00+0600</g:availability_date>
+
+            <!--Характеристики товара-->
+            <g:product_detail>
+                <g:section_name>Название группы</g:section_name>
+                <g:attribute_name>Артикул товара</g:attribute_name>
+                <g:attribute_value>1000</g:attribute_value>
+            </g:product_detail>
+            <g:product_detail>
+                <g:attribute_name>Жанр</g:attribute_name>
+                <g:attribute_value>Какая-то литература</g:attribute_value>
+            </g:product_detail>
+
+            <!--Параметры товара (зависит от типа товара) -->
+            <g:item_group_id>100554</g:item_group_id>
+            <g:adult>no</g:adult>
+            <g:energy_efficiency_class>A++</g:energy_efficiency_class>
+            <g:min_energy_efficiency_class>A</g:min_energy_efficiency_class>
+            <g:max_energy_efficiency_class>A+++</g:max_energy_efficiency_class>
+            <g:age_group>kids</g:age_group>
+            <g:color>White</g:color>
+            <g:gender>male</g:gender>
+            <g:material>cotton/polyester/elastane</g:material>
+            <g:pattern>striped</g:pattern>
+            <g:size>M</g:size>
+            <g:size_type>regular</g:size_type>
+            <g:size_system>EU</g:size_system>
+            <g:product_length>30 cm</g:product_length>
+            <g:product_width>30 cm</g:product_width>
+            <g:product_height>170 cm</g:product_height>
+            <g:product_weight>5 kg</g:product_weight>
+            <g:product_highlight>Короткое описание ключевых характеристик</g:product_highlight>
+
+          <!--Точки самовывоза товара-->
+            <bnpl:pickup>
+                <bnpl:id>1</bnpl:id>
+                <bnpl:region>Акмолинская область</bnpl:region>
+                <bnpl:city>Кокшетау</bnpl:city>
+                <bnpl:street>Абая 1</bnpl:street>
+                <bnpl:building>100</bnpl:building>
+                <bnpl:apartment>1</bnpl:apartment>
+                <bnpl:available>yes</bnpl:available>
+            </bnpl:pickup>
+
+            <bnpl:pickup>
+                <bnpl:id>2</bnpl:id>
+                <bnpl:region></bnpl:region>
+                <bnpl:city>Алматы</bnpl:city>
+                <bnpl:street>Абая 1</bnpl:street>
+                <bnpl:building>100</bnpl:building>
+                <bnpl:apartment></bnpl:apartment>
+                <bnpl:available>no</bnpl:available>
+            </bnpl:pickup>
+
+            <bnpl:collection>Осень-зима 2024</bnpl:collection>
+        </item>
+    </channel>
+</rss>
+```
+
+Below are examples of how products are displayed on the BCC Mall side, to visually demonstrate the feed attributes:
+
+![feed-example](https://bnpl.kz/dev-portal/_next/static/media/feed.2e1955e8.jpg)
+![feed-example](https://bnpl.kz/dev-portal/_next/static/media/feed2.3ad7ba31.jpg)
+
+### Recommendations for feed layout
+
+For correct division of products in BCC Mall, we recommend adding additional information to your product feed, which will be needed for identifying and processing orders by managers (product SKU and other additional attributes).
+
+For example, take two identical products with a different volume: one 50 ml, the other 100 ml, then the feed layout would look as follows:
+
+```xml
+<!--Указание объема:-->
+<g:product_detail>
+    <g:section_name>Название группы атрибута</g:section_name>
+    <g:attribute_name>Объем</g:attribute_name>
+    <g:attribute_value>50 мл</g:attribute_value>
+</g:product_detail>
+
+<!--Указание артикула товара:-->
+<g:product_detail>
+    <g:section_name>Название группы атрибута</g:section_name>
+    <g:attribute_name>Артикул товара</g:attribute_name>
+    <g:attribute_value>8411061059548</g:attribute_value>
+</g:product_detail>
+```
+
+The same applies to the other variant of this product.
+
+Other necessary product attributes can be passed in the same way.

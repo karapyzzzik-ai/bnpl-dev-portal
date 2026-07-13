@@ -1,0 +1,6 @@
+{
+  "auth": "Authorization",
+  "scoring": "Creating an order and getting scoring results",
+  "change-status": "Changing order status",
+  "preapp": "Getting order status"
+}

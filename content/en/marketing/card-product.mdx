@@ -1,0 +1,18 @@
+# Marketing
+
+#### Button on the product card
+
+This button will be placed when opening the detailed description of a given product on the seller's page. The price of the specified product must be from 6,000 tg. to 200,000 tg. A visual example is shown below:
+
+> Installment 0-0-4
+> 13 123 ₸ x 4 months
+
+![Micom](https://bnpl.kz/dev-portal/_next/static/media/micom_screenshot.c562f997.jpg)
+
+To implement this button on the seller's page, the plugin needs to be supplemented with the following code.
+
+A live example with all files is available on CodeSandbox: [sweet-newton-928qyn](https://codesandbox.io/p/sandbox/sweet-newton-928qyn?from-embed).
+
+```js
+button.innerHTML = `<p>Рассрочка 0-0-4</p><span>${payment} ₸ х 4 мес</span>`;
+```

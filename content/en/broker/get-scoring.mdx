@@ -1,0 +1,65 @@
+# Getting approved offers
+
+At the specified postlink in /preapp you will receive the scoring completion result:
+
+## Structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| id | uid | Yes | BNPL order identifier |
+| billNumber | string | Yes | Merchant order number |
+| status | string | Yes | Scoring status: PREAPPROVED/DECLINED |
+| code | string | Yes | Product code: BNPL4 |
+| billAmount | string | Yes | Order amount |
+| terms | string | Yes | 4 |
+| monthly_payment | string | Yes | Monthly payment |
+
+## Request
+
+```json
+{
+"id": "0db69d6c-d152-a54d-8d15-5617017e69cb",
+"billNumber": "",
+"status": "preapproved",
+"signature": "5af89c388202a2d8e28d6f626323c5d9dfd33c2b1cabc00bcfecf1d94a31f9a0"
+"offers": [
+    {
+      "terms": 4,
+      "billAmount": "200000.00",
+      "code": "BNPL4",
+      "monthly_payment": "50000.00"
+    }
+]
+}
+```
+
+Signature generation algorithm:
+
+The calculation algorithm is the same as in the postlink request, with the difference that the signature of the offers array is added.
+
+```
+hmac(sha512('"status" + ":" + statusValue + ":" + "preappId" + ":" + preappIdValue + ":" + "billNumber" + ":" + billNumberValue' + ":" + "offers" + ":" + offersSignature', secretKey)
+hmac(sha512("status:completed:preappId:7d301c9c-6291-4016-b951-cf58d6605685:billNumber:100:offers:7d301c9c-6291-4016-b951-cf58d6605685", 'Partner.code'))
+```
+
+Calculating the signature of the offers array:
+
+We need to calculate a hash for each element of the array.
+
+```
+hmac(sha512('"terms" + ":" + termsValue + ":" + "billAmount" + ":" + billAmountValue + ":" + "code" + ":" + codeValue' + ":" + "monthly_payment" + ":" + monthlyPaymentValue', secretKey)
+hmac(sha512("terms:4:billAmount:200000.00:code:BNPL4:monthly_payment:50000.00", 'Partner.code'))
+```
+
+Next, concatenate the resulting hashes using the same separator, and add the resulting final hash to offers.
+
+```
+hmac(sha512('hash1 + ":" + hash2 + ":" + hash3 + ":" + ":" + hash... + ":" + ":" + hashN + ":"', secretKey)
+hmac(sha512("7d301c9c-6291-4016-b951-cf58d6605685:7d301c9c-6291-4016-b951-cf58d6605685:7d301c9c-6291-4016-b951-cf58d6605685:code:BNPL4:monthly_payment:50000.00", 'Partner.code'))
+```
+
+For their part, the broker hashes and verifies the signature's validity using the same principle
+
+We expect a successful HTTP 200 response with no body
+
+Otherwise: We retry every 10 sec, 3 times, until a successful response is received.

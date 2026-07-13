@@ -1,0 +1,66 @@
+# Getting the installment limit by phone number
+
+The method is intended for partners and allows retrieving the amount of the available installment limit by the client's phone number.
+
+| | |
+| --- | --- |
+| Endpoint | `/v1/limit/{phone_number}/installment-limit` |
+| HTTP method type | GET |
+| Data format | JSON |
+
+### Authorization
+
+Bearer
+
+#### Request
+
+path parameter
+
+| Parameter | Type | Required | Validation rules | Example | Description |
+| --- | --- | --- | --- | --- | --- |
+| phoneNumber | string | Yes | Matches the format | 7XXXXXXXXXX | Client's phone number |
+
+#### Response
+
+Example HTTP 200 response
+
+```json
+{
+"installmentLimit": 37000
+}
+```
+
+Response structure
+
+| Name | Data type | Description |
+| --- | --- | --- |
+| installmentLimit | int | Amount of the available limit |
+
+HTTP 400 (error - the phoneNumber field is missing from the request)
+
+```json
+{
+"code": 0,
+"message": "string",
+"details": [
+    {
+      "@type": "string",
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    }
+]
+}
+```
+
+#### Statuses
+
+Method response statuses
+
+| Status | Description |
+| --- | --- |
+| 200 | On successful method execution |
+| 400 | On client error. (Example: invalid phone_number format) |
+| 401 | Authorization error |
+| 404 | When there is no client with this phone number |
+| 500 | General server error |

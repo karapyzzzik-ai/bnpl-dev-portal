@@ -1,0 +1,168 @@
+# Getting preapp status
+
+Using the two methods below, you can get the preapp status directly by the preapp identifier or by the Merchant's order number.
+
+| Preapp statuses | Description |
+| --- | --- |
+| received | Preapp created |
+| pending | In progress |
+| scoring_declined | Scoring declined |
+| scoring_failed | Technical error of external services |
+| merchant_awaiting | Waiting for merchant confirmation |
+| merchant_confirmed | Merchant confirmed |
+| merchant_declined | Merchant declined |
+| merchant_unavailable | Waiting for merchant confirmation |
+| client_declined | Client declined |
+| completed | Preapp completed |
+| delivered | Delivered |
+| canceled | Cancelled |
+| return | Full return |
+| return_final | Full return |
+| part_return | Partial return |
+| buyed | Bought out |
+
+## Getting status by preappID
+
+| Method | GET |
+| --- | --- |
+| URL | `bnpl/preapp/{id}/status` |
+| Description | This method returns preapp statuses |
+| Response format | JSON |
+| Response status | 200 — On successful scenario |
+|  | 400 — On error |
+|  | 401 — Authentication failed |
+|  | 500 — Unknown error |
+
+#### Curl request
+
+```
+curl --location --request GET \
+'https://dev.bnpl.kz/api/bnpl/preapp/{id}/status' \
+--header 'Authorization: Bearer {token}'
+```
+
+_If the integration is on the stage environment, the request should be sent to `https://stage.bnpl.kz/api/bnpl/preapp/{id}/status`_
+
+#### Request structure
+
+| Parameter | Location | Description | Type |
+| --- | --- | --- | --- |
+| Authorization | header | Authorization | Bearer token |
+| id | path | preappId | string |
+
+#### Response
+
+```json
+{
+"status":"received"
+}
+```
+
+#### Response structure
+
+| Parameter | Description | Type |
+| --- | --- | --- |
+| status | Preapp status | string |
+
+#### Error response
+
+```json
+{
+    "error": {
+        "code": int,
+        "message": "string"
+    }
+}
+```
+
+#### Validation error response
+
+```json
+{
+    "error": {
+        "code": int,
+        "details": [
+            {
+                "@type": "string",
+                "error": "string",
+                "field": "string"
+            }
+        ],
+        "message": "string",
+        "prefix": "string"
+    }
+}
+```
+
+## Getting status by order number
+
+| Method | GET |
+| --- | --- |
+| URL | `bnpl/bill/{billNumber}/status` |
+| Description | This method returns preapp statuses by the Merchant's order number |
+| Response format | JSON |
+| Response status | 200 — On successful scenario |
+|  | 400 — On error |
+|  | 401 — Authentication failed |
+|  | 500 — Unknown error |
+
+#### Curl request
+
+```
+curl --location --request GET \
+'https://dev.bnpl.kz/api/bnpl/bill/{billnumber}/status' \
+--header 'Authorization: Bearer {token}'
+```
+
+_If the integration is on the stage environment, the request should be sent to `https://stage.bnpl.kz/api/bnpl/bill/{billnumber}/status`_
+
+#### Request structure
+
+| Parameter | Location | Description | Type |
+| --- | --- | --- | --- |
+| Authorization | header | Authorization | Bearer token |
+| billNumber | path | Merchant order number | string |
+
+#### Response
+
+```json
+{
+"status":"received"
+}
+```
+
+#### Response structure
+
+| Parameter | Description | Type |
+| --- | --- | --- |
+| status | Preapp status | string |
+
+#### Error response
+
+```json
+{
+    "error": {
+        "code": int,
+        "message": "string"
+    }
+}
+```
+
+#### Validation error response
+
+```json
+{
+    "error": {
+        "code": int,
+        "details": [
+            {
+                "@type": "string",
+                "error": "string",
+                "field": "string"
+            }
+        ],
+        "message": "string",
+        "prefix": "string"
+    }
+}
+```

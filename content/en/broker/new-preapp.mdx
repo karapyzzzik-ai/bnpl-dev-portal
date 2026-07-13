@@ -1,0 +1,120 @@
+# Creating an order
+
+| Method | POST |
+| --- | --- |
+| URL | `bnpl/broker/v2/preapp` |
+| Description | Creating a preapp via the broker |
+| Response format | JSON |
+| Response status | 200 — On successful scenario |
+|  | 400 — On error |
+|  | 401 — Authentication failed |
+|  | 500 — Unknown error |
+
+## Request
+
+```json
+{
+  "partnerCode": "string",
+  "billNumber": "string",
+  "billAmount": 0,
+  "expiresAt": "2023-09-07T10:49:10.156Z",
+  "failRedirect": "string",
+  "successRedirect": "string",
+  "postLink": "string",
+  "iin": "string",
+  "phoneNumber": "string",
+  "items": [
+    {
+      "itemId": "string",
+      "itemName": "string",
+      "itemCategory": "string",
+      "itemQuantity": 0,
+      "itemPrice": 0,
+      "itemSum": 0
+    }
+  ]
+}
+```
+
+### Structure
+
+| Parameter | Type | Required | Description | Validation rules |
+| --- | --- | --- | --- | --- |
+| Authorization | header | Authorization | Bearer token | |
+| partnerCode | string | Yes | Merchant code | |
+| billNumber | string | Yes | Order number in the partner's system (unique within the partner's platform) | - |
+| billAmount | uint | Yes | Order amount in tenge | 6000 t < billAmount < 200 000 t |
+| expires_at | ISO8601 Reference **2021-12-01T15:59:00.680+06:00** | No | Date and time the application period expires (if the partner's platform provides for order expiration). If empty - the main preapp application lives for one day after the client is redirected. | |
+| successRedirect | string | Yes | Link to redirect the client to on successful checkout (Return to store) | - |
+| failRedirect | string | No | Link to redirect the client to on failed checkout | - |
+| postLink | string | Yes | Link to the partner's API for returning statuses | - |
+| iin | string | Yes | Client's IIN | 12 characters. Validated for a correct IIN |
+| phoneNumber | string | Yes | Client's phone number | 11 digits; the first two digits are 77 |
+| items | struct | Yes | Item data | - |
+| items: itemId | string | Yes | Item identifier | - |
+| items: itemName | string | Yes | Item name | - |
+| items: itemCategory | string | No | Item category | - |
+| items: itemQuantity | uint | Yes | Item quantity | - |
+| items: itemPrice | uint | Yes | Item price | - |
+| items: itemSum | uint | Yes | Total item amount | - |
+
+### Successful response
+
+```json
+{
+  "id": "0db69d6c-d152-a54d-8d15-5617017e69cb"
+}
+```
+
+### Validation error response
+
+```json
+{
+  "error": {
+    "code": 0,
+    "message": "string",
+    "prefix": "string",
+    "details": [
+      {
+        "@type": "string",
+        "error": "string",
+        "field": "string"
+      }
+    ]
+  }
+}
+```
+
+### Error response
+
+```json
+{
+  "error": {
+    "code": 0,
+    "message": "string"
+  }
+}
+```
+
+<ApiPlayground
+  method="POST"
+  devUrl="https://dev.bnpl.kz/api/bnpl/broker/v2/preapp"
+  stageUrl="https://bnpl.kz/api/bnpl/broker/v2/preapp"
+  fields={[
+    { name: 'partnerCode', type: 'string', required: true },
+    { name: 'billNumber', type: 'string', required: true },
+    { name: 'billAmount', type: 'number', required: true },
+    { name: 'expiresAt', type: 'string', required: false },
+    { name: 'successRedirect', type: 'string', required: true },
+    { name: 'failRedirect', type: 'string', required: false },
+    { name: 'postLink', type: 'string', required: true },
+    { name: 'iin', type: 'string', required: true },
+    { name: 'phoneNumber', type: 'string', required: true },
+    { name: 'itemId', type: 'string', required: true },
+    { name: 'itemName', type: 'string', required: true },
+    { name: 'itemCategory', type: 'string', required: false },
+    { name: 'itemQuantity', type: 'number', required: true },
+    { name: 'itemPrice', type: 'number', required: true },
+    { name: 'itemSum', type: 'number', required: true }
+  ]}
+/>
