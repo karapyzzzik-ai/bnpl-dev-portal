@@ -28,7 +28,7 @@ export default async function RootLayout({
           navbar={navbar}
           pageMap={await getPageMap(`/${lang}`)}
           footer={footer}
-          docsRepositoryBase="https://github.com/REPLACE_WITH_GH_USERNAME/bnpl-dev-portal"
+          docsRepositoryBase="https://github.com/karapyzzzik-ai/bnpl-dev-portal"
         >
           {children}
         </Layout>
