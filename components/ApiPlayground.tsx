@@ -1,7 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { buildRequestBody, classifyFetchError, type PlaygroundField } from './apiPlaygroundLogic'
+import {
+  buildRequestBody,
+  classifyFetchError,
+  PLAYGROUND_STRINGS,
+  type PlaygroundField,
+  type PlaygroundLang
+} from './apiPlaygroundLogic'
 
 /**
  * Always-visible "where will this actually go" banner. Some pages (e.g. the broker
@@ -11,7 +17,7 @@ import { buildRequestBody, classifyFetchError, type PlaygroundField } from './ap
  * again right above the Send button, so a user always sees exactly where their click
  * will send a request before they click it.
  */
-function ResolvedUrlBanner({ url }: { url: string }) {
+function ResolvedUrlBanner({ url, label }: { url: string; label: string }) {
   return (
     <div
       style={{
@@ -25,7 +31,7 @@ function ResolvedUrlBanner({ url }: { url: string }) {
         margin: '0.5rem 0'
       }}
     >
-      <strong>Запрос будет отправлен на:</strong> {url}
+      <strong>{label}</strong> {url}
     </div>
   )
 }
@@ -34,13 +40,16 @@ export function ApiPlayground({
   method,
   devUrl,
   stageUrl,
-  fields
+  fields,
+  lang = 'ru'
 }: {
   method: string
   devUrl: string
   stageUrl: string
   fields: PlaygroundField[]
+  lang?: PlaygroundLang
 }) {
+  const t = PLAYGROUND_STRINGS[lang]
   const [env, setEnv] = useState<'dev' | 'stage'>('dev')
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(fields.map(f => [f.name, f.defaultValue ?? '']))
@@ -65,7 +74,7 @@ export function ApiPlayground({
       const text = await res.text()
       setResponse(`HTTP ${res.status}\n${text}`)
     } catch (err) {
-      setError(classifyFetchError(err).message)
+      setError(classifyFetchError(err, lang).message)
     } finally {
       setLoading(false)
     }
@@ -75,14 +84,14 @@ export function ApiPlayground({
 
   return (
     <div className="nextra-card" style={{ padding: '1rem', marginTop: '1rem' }}>
-      <h4>Попробовать запрос</h4>
+      <h4>{t.heading}</h4>
       <label>
         <input type="radio" checked={env === 'dev'} onChange={() => setEnv('dev')} /> DEV
       </label>{' '}
       <label>
         <input type="radio" checked={env === 'stage'} onChange={() => setEnv('stage')} /> STAGE
       </label>
-      <ResolvedUrlBanner url={url} />
+      <ResolvedUrlBanner url={url} label={t.resolvedUrlLabel} />
       {fields.map(field => (
         <div key={field.name} style={{ marginTop: '0.5rem' }}>
           <label>
@@ -96,9 +105,9 @@ export function ApiPlayground({
           </label>
         </div>
       ))}
-      <ResolvedUrlBanner url={url} />
+      <ResolvedUrlBanner url={url} label={t.resolvedUrlLabel} />
       <button onClick={handleSubmit} disabled={loading} style={{ marginTop: '0.75rem' }}>
-        {loading ? 'Отправка...' : 'Отправить'}
+        {loading ? t.sendingLabel : t.sendLabel}
       </button>
       {response && <pre style={{ marginTop: '0.75rem' }}>{response}</pre>}
       {error && (
