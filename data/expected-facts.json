@@ -1,0 +1,142 @@
+{
+  "content/ru/index.mdx": [
+    "в рассрочку на 4 месяца",
+    "6-значный код",
+    "broker_integration_scheme.9b930fd7.png"
+  ],
+  "content/ru/customer-journey/index.mdx": [
+    "redirectLink",
+    "ec162f55-e0a9-5f89-fa39-2720c8fc80a2",
+    "widget_step_1.1d8fa834.jpg"
+  ],
+  "content/ru/customer-journey/widget.mdx": [
+    "bnplKz-root",
+    "135b2205-7d4d-9d09-7777-d25cdeb001aa",
+    "onDeclined"
+  ],
+  "content/ru/customer-journey/android-biometry.mdx": [
+    "android.permission.CAMERA",
+    "setMediaPlaybackRequiresUserGesture",
+    "WebChromeClient"
+  ],
+  "content/ru/methods/auth.mdx": [
+    "users/api/v1/sign-in",
+    "incorrect Username or Password",
+    "accessExpiresAt"
+  ],
+  "content/ru/methods/index.mdx": [
+    "users/api/v1/sign-in",
+    "users/api/v1/refresh",
+    "incorrect Username or Password"
+  ],
+  "content/ru/methods/scoring.mdx": [
+    "bnpl/v3/preapp",
+    "scoring_preapproved",
+    "6000 т < billAmount < 200 000 т"
+  ],
+  "content/ru/methods/preapp.mdx": [
+    "bnpl/preapp/{id}/status",
+    "bnpl/bill/{billNumber}/status",
+    "buyed"
+  ],
+  "content/ru/methods/change-status/delivery.mdx": [
+    "changeStatus/json",
+    "buyed",
+    "500 тг"
+  ],
+  "content/ru/methods/change-status/cancel.mdx": [
+    "changeStatus/json",
+    "canceled",
+    "«completed»/«Успешный заказ»"
+  ],
+  "content/ru/methods/change-status/return.mdx": [
+    "changeStatus/json",
+    "return_final",
+    "«buyed»/«Заказ выкуплен»"
+  ],
+  "content/ru/methods/change-status/part-return.mdx": [
+    "changeStatus/json",
+    "part_return",
+    "80000"
+  ],
+  "content/ru/bcc-mall/api.mdx": [
+    "bnpl.kz/customer-cabinet",
+    "Тестовый bearer-токен - 1234567890",
+    "testsite/local/integrations/bnpl.php"
+  ],
+  "content/ru/bcc-mall/index.mdx": [
+    "Google RSS 2.0",
+    "80MB или 150 тысяч товаров",
+    "g:availability"
+  ],
+  "content/ru/installment-limit/index.mdx": [
+    "qr/scoring?partnerCode=bnpl.kz&pointCode=01-0010-L1",
+    "encodeURIComponent",
+    "БМГ (egov.kz)"
+  ],
+  "content/ru/installment-limit/get-limit-data.mdx": [
+    "/v1/limit/{phone_number}/installment-limit",
+    "installmentLimit",
+    "37000"
+  ],
+  "content/ru/marketing/index.mdx": [
+    "information_on_payment_method.zip",
+    "UI-kit-jeans.zip",
+    "marketing-logo.zip"
+  ],
+  "content/ru/marketing/card-product.mdx": [
+    "sweet-newton-928qyn",
+    "13 123 ₸ х 4 мес",
+    "micom_screenshot.c562f997.jpg"
+  ],
+  "content/ru/marketing/payment-schedule.mdx": [
+    "blissful-mestorf-k7stzh",
+    "51 000 ₸",
+    "12 750"
+  ],
+  "content/ru/faq/post-service.mdx": [
+    "2 200 тг за каждый просроченный платеж",
+    "customer@bnpl.kz",
+    "200 000 тенге"
+  ],
+  "content/ru/faq/general.mdx": [
+    "eGov mobile",
+    "Сервисы → Молл → Мои заказы",
+    "2200 тенге"
+  ],
+  "content/ru/faq/index.mdx": [
+    "eGov mobile",
+    "6 000 KZT до 200 000 KZT",
+    "2200 тенге"
+  ],
+  "content/ru/broker/index.mdx": [
+    "broker_integration.efdbcde7.png",
+    "брокер уведомляет об этом BNPL",
+    "Брокер передает информацию о клиенте и заявке"
+  ],
+  "content/ru/broker/new-preapp.mdx": [
+    "bnpl/broker/v2/preapp",
+    "0db69d6c-d152-a54d-8d15-5617017e69cb",
+    "6000 т < billAmount < 200 000 т"
+  ],
+  "content/ru/broker/get-scoring.mdx": [
+    "monthly_payment",
+    "BNPL4",
+    "50000.00"
+  ],
+  "content/ru/broker/approve.mdx": [
+    "bnpl/broker/v1/approve",
+    "redirectLink",
+    "BNPL4"
+  ],
+  "content/ru/broker/get-status.mdx": [
+    "hmac(sha512",
+    "7d301c9c-6291-4016-b951-cf58d6605685",
+    "\"response\": \"completed\""
+  ],
+  "content/ru/broker/authorization.mdx": [
+    "users/api/v1/sign-in",
+    "36f4evvzDGVqIbHq34oZ5Y6uv-QPogrNMv61Po8JNA1",
+    "incorrect Username or Password"
+  ]
+}

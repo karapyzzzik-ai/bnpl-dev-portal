@@ -1,0 +1,54 @@
+# Отправка выбора клиента
+
+| Метод | POST |
+| --- | --- |
+| URL | `bnpl/broker/v1/approve` |
+| Описание | Получение выбора от клиента |
+| Формат ответа | JSON |
+| Статус ответа | 200 — В случае успешного сценария |
+|  | 400 — В случае ошибки |
+|  | 500 — Неизвестная ошибка |
+
+## Запрос
+
+```json
+{
+"id": "uuid"
+"code": "BNPL4"
+}
+```
+
+### Структура
+
+| Параметр | Тип | Описание | |
+| --- | --- | --- | --- |
+| id | | uuid | Идентификатор BNPL |
+| code | | string | Код продукта BNPL |
+| Authorization | header | Bearer token | Авторизация |
+
+### Успешный ответ
+
+```json
+{
+       "redirectLink": "string"
+}
+```
+
+На полученный redirectLink необходимо перенаправить клиента
+
+### Отрицательный ответ
+
+```json
+{ "error": { "code": int, "message": "string" } }
+```
+
+<ApiPlayground
+  method="POST"
+  devUrl="https://dev.bnpl.kz/api/bnpl/broker/v1/approve"
+  stageUrl="https://bnpl.kz/api/bnpl/broker/v1/approve"
+  fields={[
+    { name: 'id', type: 'string', required: true },
+    { name: 'code', type: 'string', required: true, defaultValue: 'BNPL4' }
+  ]}
+  lang="ru"
+/>

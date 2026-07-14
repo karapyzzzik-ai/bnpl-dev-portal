@@ -1,0 +1,29 @@
+# Customer journey interface
+
+### Redirect
+
+![Set up installment](https://bnpl.kz/dev-portal/_next/static/media/step_1.e1631254.png)
+![Confirm phone number](https://bnpl.kz/dev-portal/_next/static/media/step_2.fe9050cb.png)
+![Scoring](https://bnpl.kz/dev-portal/_next/static/media/step_3.c3f5083f.png)
+![Approval](https://bnpl.kz/dev-portal/_next/static/media/step_5.9b1749ca.png)
+
+When the "Proceed to payment" button is clicked, the partner sends a data package to the BNPL Backend to create a pre-application
+
+The partner redirects the client to the received link (redirectLink)
+
+##### Example redirectLink on the external test environment
+
+```
+https://dev.bnpl.kz/scoring/?preapp=ec162f55-e0a9-5f89-fa39-2720c8fc80a2&phone=&link=https%3A%2F%2Fwww.flip.kz
+```
+
+### Widget (Modal window)
+
+**Widget** (within the BNPL product concept) is a js library that allows setting up the product on the merchant's checkout page, without redirecting the client to our UI. A demo can be viewed here.
+
+_\*We recommend using this method for seamless integration._
+
+![Set up installment](https://bnpl.kz/dev-portal/_next/static/media/widget_step_1.1d8fa834.jpg)
+![Confirm phone number](https://bnpl.kz/dev-portal/_next/static/media/widget_step_2.0baf419f.jpg)
+![Scoring](https://bnpl.kz/dev-portal/_next/static/media/widget_step_3.974e0ea4.jpg)
+![Approval](https://bnpl.kz/dev-portal/_next/static/media/widget_step_5.e6de258b.jpg)

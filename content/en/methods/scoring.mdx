@@ -1,0 +1,237 @@
+# Creating an order and getting scoring results
+
+### 1. Creating an order
+
+1.1 When the "Proceed to payment" button is clicked, the partner sends a data package to the BNPL Backend to create a pre-application
+
+#### POST bnpl/v3/preapp
+
+```
+curl --request POST \
+  --url https://dev.bnpl.kz/api/bnpl/v3/preapp \
+  --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiIzZjIyN2RlMS03ZjVhLTRjOTUtYjRmMy1iMWZjNjVkYWE4MmMiLCJleHAiOjE2NzgxMDMzOTZ9.qcZFGDi6-kKdgzouEX4X56JeX6xEucCIj74SwfjuPra' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "partnerData": {
+        "partnerName": "exampleName",
+        "partnerCode": "example.kz",
+        "pointCode": "02-9998-L5"
+    },
+    "billNumber": "zqq-123332125553",
+    "billAmount": "6100",
+    "itemsQuantity": 1,
+    "items": [
+        {
+          "itemId": "42",
+          "itemName": "fg",
+          "itemQuantity": "1",
+          "itemPrice": "0",
+          "itemSum": 6100
+        }
+    ],
+    "successRedirect": "https://www.google.com",
+    "failRedirect": "https://bb-mania.kz",
+    "postLink": "https://dev-bnpl-fake-certex.apps.dev.bcc.kz/merchant/preapproved",
+    "phoneNumber": "77071718160",
+    "expiresAt": "2023-03-06T20:07:59Z",
+    "deliveryAt": "2023-04-06T20:07:59Z",
+    "deliveryPoint": {
+        "region": "",
+        "city": "",
+        "disctrict": "",
+        "street": "",
+        "house": "",
+        "flat": ""
+    }
+}'
+```
+
+_If the integration is on the stage environment, the request should be sent to https://stage.bnpl.kz/api/bnpl/v3/preapp_
+
+#### Request structure (Table 1)
+
+| Parameter | Type | Required | Description | Validation rules |
+| --- | --- | --- | --- | --- |
+| header | string | Yes | Content-Type: application/json | - |
+| Authorization header | string | Yes | Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... | - |
+| partnerName | string | Yes | Partner name - the name that will be shown in the interface to the client (try to avoid long legal names) | - |
+| partnerCode | string | Yes | Partner code (assigned during partner registration) | - |
+| pointCode | string | Yes | Partner point code (assigned during partner registration) | - |
+| billNumber | string | Yes | Order number in the partner's system (unique within the partner's platform) | - |
+| billAmount | uint | Yes | Order amount in tenge | 6000 t < billAmount < 200 000 t |
+| itemsQuantity | uint | Yes | Number of items in the order | >0 |
+| items | struct | No | Item data | - |
+| successRedirect | string | Yes | Link to redirect the client to on successful checkout (Return to store) | - |
+| failRedirect | string | No | Link to redirect the client to on failed checkout | - |
+| postLink | string | Yes | Link to the partner's API for returning statuses | - |
+| phoneNumber | string | No | Client's phone number (if available) | 11 digits; the first two digits are 77; if validation fails, the field will be cleared |
+| expiresAt | ISO8601 | No | Date and time the application period expires (if the partner's platform provides for order expiration) | - |
+| deliveryDate | ISO8601 | No | Possible delivery date of the item (if the partner's platform provides for estimating the delivery date) | - |
+| delivery: region | string | No | Delivery address or store address | - |
+| delivery: city | string | No | Delivery address or store address | - |
+| delivery: district | string | No | Delivery address or store address | - |
+| delivery: street | string | No | Delivery address or store address | - |
+| delivery: house | string | No | Delivery address or store address | - |
+| delivery: flat | string | No | Delivery address or store address | - |
+
+#### Successful response
+
+```json
+{
+     "data": {
+                "preappId": "644dbe0d-ec91-1132-4a3d-c45722a1bad7",
+                "redirectLink": "https://dev.bnpl.kz/scoring?preapp=644dbe0d-ec91-1132-4a3d-c45722a1bad7&phone=77779657851&link=https%3A%2F%2Fwww.flip.kz",
+                "status": "received"
+                }
+}
+```
+
+#### Error response
+
+Example: the request is missing the billNumber field
+
+```json
+{
+  "error": {
+    "code": 1,
+    "details": [
+      {
+        "@type": "type.googleapis.com/errdetails.v1.ValidationErrorDetails",
+        "error": "Validation failed on 'required' tag",
+        "field": "BillNumber"
+      }
+    ],
+    "message": "Validation fails",
+    "prefix": "VL"
+  }
+}
+```
+
+1.2 Any information passed in deliveryPoint will be saved, even if incomplete; the structure may be absent altogether.
+
+1.3 If required fields (Table 1) fail validation, the response to the request will contain a breakdown of the errors without a link to the BNPL checkout page; the partner is advised to show them to the user on their own platform via a modal window with a single generic text (Example: "Unfortunately, an error occurred. Please try again later")
+
+1.4 Upon receiving this request, the correctness of the partnerCode and pointCode is checked.
+
+1.5 The expiresAt field is validated:
+
+- If the preapp was created before 23:00 on the current day - its maximum lifetime is until 00:00
+- If the preapp was created between 23:00 and 00:00 on the current day - its maximum lifetime is until 01:00 the next day
+- If the preapp was created between 00:00 and 01:00 on the current day - its maximum lifetime is until 01:00 on the current day
+
+If, when creating the order, the merchant specified a time shorter than what is allowed by the rules, it remains unchanged (for example, 20 minutes)
+
+1.6 The order is then checked for duplicates:
+
+Preapp duplication logic
+
+- If no such preapp was found, a new application will be created in the standard mode
+- If such a preapp was found, and this preapp is
+  - in an inactive status, a new preapp is created and a link to it is returned to the merchant; the old (found) preapp is switched to the duplicated status (or is already in it)
+  - in an active status, a link of the form `{domain}/duplicate?preapp={ }?link={link}` is sent to the merchant in response
+
+1.7 The partner redirects the client to the received link (redirectLink)
+
+#### Example redirectLink on the external test environment
+
+```
+https://dev.bnpl.kz/scoring/?preapp=ec162f55-e0a9-5f89-fa39-2720c8fc80a2&phone=&link=https%3A%2F%2Fwww.flip.kz
+```
+
+### Getting scoring results
+
+2. The client identifier is the IIN, against which scoring checks are performed.
+
+BNPL scoring is expressed in points: from 0 to 400, where 0 is an absolutely unreliable client, 400 is an extremely reliable client.
+
+2.1 The BNPL service sets the preapp status to scoring_preapproved (for any score greater than 0), otherwise scoring_declined
+
+2.1.1 If no decision arrives within a certain timeout period, the client will see the "It seems our server is overloaded..." screen.
+
+2.2 The BNPL service sends the received scoring information to the merchant at the postLink specified in the original order creation request.
+
+```json
+{
+"status": "preapproved",
+"scoring": 100,
+"preappId": "6c87e9f9-6ab8-2532-ddbb-e4c102a8ca16",
+"billNumber": "241сd",
+"signature": "5af89c388202a2d8e28d6f626323c5d9dfd33c2b1cabc00bcfecf1d94a31f9a0"
+}
+```
+
+#### Request structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| status | string | yes | Scoring result Preapproved/declined |
+| scoring | number | yes | Scoring score (0, 100, 200, 300, 400) |
+| preappId | string | yes | BNPL order identifier |
+| billNumber | string | yes | Merchant order number |
+| signature | string | yes | Request signature for security |
+
+```
+hmac(sha512('"status" + ":" + statusValue + ":" + "preappId" + ":" + preappIdValue + ":" + "billNumber" + ":" + billNumberValue', secretKey))
+hmac(sha512("status:completed:preappId:7d301c9c-6291-4016-b951-cf58d6605685:billNumber:100", 'bbmania.kz'))
+```
+
+For their part, the merchant hashes and verifies the signature's validity using the same principle.
+
+**SecretKey - the partnerCode received from the bnpl integration team**
+
+2.3 The merchant responds to the received information: positively or negatively. On a positive response, the preapp is switched to the merchant_confirmed status, on a negative response — merchant_declined.
+
+#### Positive response
+
+#### HTTP 200
+
+```json
+{ "response": "preapproved" }
+```
+
+#### Negative response
+
+#### HTTP 200
+
+```json
+{ "response": "declined" }
+```
+
+2.3.1 If the merchant does not respond within 35 seconds, the preapp is switched to the merchant_unavailable status, and the client is prevented from continuing the application
+
+2.3.2 The merchant may decline to process an application with a score of 400. The decision is entirely up to the partner
+
+2.4 The client sees the outcome of the review — unsuccessful or successful, along with the service terms. The client can click "Decline" and return to the store; the order will be cancelled.
+
+2.5 The client lands on the successful checkout page
+
+2.5.1 On the final page, the client has the option to return to the store
+
+2.6 Payment information is sent to the merchant — a final push to the postlink, which is needed so that the merchant can immediately mark this client's order as paid (and not prompt them to pay for the order again or contact support). Until this push arrives, the merchant should consider the order unpaid.
+
+2.6.1 The preapp is switched to the approve_await status, and the following structure is sent to the merchant:
+
+#### POST \<postLink\>
+
+```json
+{
+    "preappId": "",
+    "billNumber": "",
+    "status": "completed",
+    "signature": "5af89c388202a2d8e28d6f626323c5d9dfd33c2b1cabc00bcfecf1d94a31f9a0"
+}
+```
+
+2.6.2 The preapp is switched to the final_merchant_unavailable status if a successful response is not received within N seconds. No further attempts will be made to send it
+
+2.6.3 The preapp is switched to the completed status if a successful response was received from the merchant:
+
+#### HTTP 200
+
+```json
+{
+    "response": "ok"
+}
+```
+
+2.7 The final_merchant_unavailable and completed statuses are equally final statuses

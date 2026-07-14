@@ -1,0 +1,76 @@
+# Biometry (Android)
+
+For WebView to work correctly with camera access, the partner's Android application must meet the requirements below.
+
+###### 1. Permissions in AndroidManifest.xml
+
+The application must declare the permission:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+###### 2. Runtime permissions
+
+The application must request the CAMERA permission from the user while the app is running (Android 6+).
+
+The request must occur before the camera is used (for example, on the first camera request).
+
+###### 3. WebView settings
+
+For the web page to work correctly, the following settings must be enabled:
+
+```
+JavaScriptEnabled = true
+DomStorageEnabled = true
+mediaPlaybackRequiresUserGesture = false
+hardware acceleration — recommended, but optional (usually enabled by default at the application or Activity level)
+```
+
+###### 4. Handling WebView permissions (WebChromeClient)
+
+For the camera to work through WebView, the application must handle permission requests coming from the web page.
+
+A WebView permission handler must be implemented (for example, via WebChromeClient) that explicitly grants access to the requested resources after checking system permissions.
+
+###### Example logic
+
+1. intercepting the permission request from the web page;
+2. the camera request from the frame is made via `navigator.mediaDevices.getUserMedia()`;
+3. checking Android runtime permissions;
+4. granting the WebView permission if system access is present.
+
+###### Example code in Flutter
+
+```dart
+if (Platform.isAndroid) {
+    final androidController = controller.platform as AndroidWebViewController;
+    await androidController.setMediaPlaybackRequiresUserGesture(false);
+    await androidController.setOnPlatformPermissionRequest((request) async {
+      final permissions = await Future.wait([
+        if (request.types.contains(WebViewPermissionResourceType.camera))
+          _requestCameraPermission(),
+      ]);
+      if (permissions.every((permission) => permission)) {
+        await request.grant();
+      } else {
+        await request.deny();
+      }
+    });
+}
+```
+
+###### Summary
+
+For the camera to work in WebView on Android, you need to:
+
+- declare CAMERA in the manifest;
+- request runtime permission from the user;
+- enable JavaScript and DOM Storage in WebView;
+- implement handling of WebView permission requests;
+
+###### Note
+
+The camera access request is initiated by the system only in scenarios where this is provided for by the business logic of the application process. In other scenarios, camera access is not requested.
+
+If camera access is required as part of a scenario and the user does not grant permission, further submission of the application is not possible.

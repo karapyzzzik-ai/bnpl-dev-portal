@@ -1,0 +1,54 @@
+# Sending the client's choice
+
+| Method | POST |
+| --- | --- |
+| URL | `bnpl/broker/v1/approve` |
+| Description | Getting the choice from the client |
+| Response format | JSON |
+| Response status | 200 — On successful scenario |
+|  | 400 — On error |
+|  | 500 — Unknown error |
+
+## Request
+
+```json
+{
+"id": "uuid"
+"code": "BNPL4"
+}
+```
+
+### Structure
+
+| Parameter | Type | Description | |
+| --- | --- | --- | --- |
+| id | | uuid | BNPL identifier |
+| code | | string | BNPL product code |
+| Authorization | header | Bearer token | Authorization |
+
+### Successful response
+
+```json
+{
+       "redirectLink": "string"
+}
+```
+
+The client must be redirected to the received redirectLink
+
+### Negative response
+
+```json
+{ "error": { "code": int, "message": "string" } }
+```
+
+<ApiPlayground
+  method="POST"
+  devUrl="https://dev.bnpl.kz/api/bnpl/broker/v1/approve"
+  stageUrl="https://bnpl.kz/api/bnpl/broker/v1/approve"
+  fields={[
+    { name: 'id', type: 'string', required: true },
+    { name: 'code', type: 'string', required: true, defaultValue: 'BNPL4' }
+  ]}
+  lang="en"
+/>

@@ -1,0 +1,81 @@
+# API for receiving orders from BCC Mall
+
+This API is designed for sending successful/approved orders from BCC Mall ([https://bnpl.kz/customer-cabinet](https://bnpl.kz/customer-cabinet)) to the partner's system (site admin panel/CRM/1C).
+
+### Process of receiving and processing an order from BCC Mall
+
+1. The client places an order in BCC Mall and receives approval
+2. BNPL sends the required data set to the partner's endpoint
+3. The partner processes the received data and puts the order into its own system
+4. After the order is processed, further changes to the order status are made by the manager via the merchant portal or their own system (with full integration with bnpl)
+
+More about changing statuses [here](/en/methods/change-status/delivery).
+
+### API implementation
+
+On the BNPL side, there is a service that forms a data scope in JSON and sends it to the partner's endpoint.
+
+Data sent in a POST request in JSON format:
+
+##### Example request
+
+```json
+{
+"id": "CL_1",
+"created_at": "2023-12-12T18:26:04.976228Z",
+"amount": 12000,
+"items": [
+    {
+      "quantity": 2,
+      "product": {
+        "id": "1",
+        "price": 6000,
+        "title": "Product Name",
+        "link": "http://example.com/path/to/product",
+        "size": "S",
+        "color": ["white"]
+      },
+      "pickup": {
+        "id": "1",
+        "region": "Акмолинская область",
+        "city": "Кокшетау",
+        "street": "Абая",
+        "building": "1",
+        "apartment": "1",
+        "available": true
+      }
+    }
+],
+"delivery": {
+    "city": "Almaty",
+    "street": "Абая",
+    "building": "10/5",
+    "apartment": "5"
+},
+"customer": { "phone": "77771234567", "full_name": "John Doe" }
+}
+```
+
+##### Attribute description
+
+**API implementation on the partner's side:** the partner needs to implement, on their own side, an endpoint to which BNPL can send order data. After receiving the JSON, the partner parses the data on their own and forms an active order in their accounting system.
+
+- The HTTP response code for the request must be a successful 2XX.
+- In case of errors, our system will try to repeat the request several times. Because of this, repeated requests with the same data may arrive; your system must be able to handle repeated requests.
+
+**When an order is received from BCC Mall, the item must automatically move from free stock into reserve.**
+
+**If authorization is present**, to access your endpoint you need to provide the following data:
+
+- the name of the token header and the authorization token value itself, in the case of static token authorization (static token auth);
+- user login and password, in the case of basic authorization (basic auth).
+
+Example of data required for testing on the partner's side:
+
+_API link: https://testsite/local/integrations/bnpl.php_
+
+_For testing authorization, the token is set in this way:_
+
+_Header("Authorization: Bearer 1234567890")_
+
+_Test bearer token - 1234567890_

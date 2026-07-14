@@ -1,0 +1,40 @@
+# Получение конечного статуса
+
+На указанный postlink в /preapp придет конечный результат по заявке
+
+## Запрос
+
+```json
+{
+    "id": "0db69d6c-d152-a54d-8d15-5617017e69cb",
+    "billNumber": "",
+    "status": "completed",
+    "signature": "5af89c388202a2d8e28d6f626323c5d9dfd33c2b1cabc00bcfecf1d94a31f9a0"
+}
+```
+
+### Структура запроса
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| id | uid | Да | Идентификатор заявки BNPL |
+| billNumber | string | Да | Номер заказа мерчанта |
+| status | string | Да | Статус оформления заявки:completed |
+| signature | string | Да | Сигнатура запроса |
+
+Алгоритм генерации signature:
+
+```
+hmac(sha512('"status" + ":" + statusValue + ":" + "preappId" + ":" + preappIdValue + ":" + "billNumber" + ":" + billNumberValue', secretKey)
+hmac(sha512("status:completed:preappId:7d301c9c-6291-4016-b951-cf58d6605685:billNumber:100", 'Partner.code'))
+```
+
+Со своей стороны брокер по тому же принципу хэширует и проверяет валидность сигнатуры
+
+### Ответ
+
+```json
+{
+    "response": "completed"
+}
+```

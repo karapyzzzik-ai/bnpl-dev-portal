@@ -1,0 +1,72 @@
+# Widget
+
+## Connecting the widget
+
+- Insert into `<head>` the script `<script defer="defer" src="{domain}/widget/index_bundle.js"></script>`
+- Insert into body a div with any id: `<div id="bnplKz-root"></div>`
+- Add a button which, when clicked, will open the widget `<button id="button">Open widget</button>`
+- Next, before the closing `</body>` tag, insert the script below:
+
+```html
+<script defer="defer">
+document.addEventListener('DOMContentLoaded', () => {
+    const bnplKzApi = new BnplKzApi.CPO({
+    rootId: 'bnplKz-root', //optional default 'bnplKz-root'
+    callbacks: {
+        onLoad: () => console.log('onLoad'), //optional
+        onError: ({ code, message }) => console.log('onError', code, message), // optional, code = "clientError" || "apiError"
+        onClosed: () => console.log('onClosed'), //optional
+        onEnd: () => console.log('onEnd'),
+        onRestart: (redirectLink) => console.log(redirectLink),
+        onDeclined: () => console.log('onDeclined'),
+      },
+    });
+
+    const button = document.getElementById('button');
+    button.addEventListener('click', () => {
+      bnplKzApi.render({
+        redirectLink:
+        '{domain}/scoring?preapp=135b2205-7d4d-9d09-7777-d25cdeb001aa&phone=77072302089&link=https%3A%2F%2Fwww.google.kz',
+      });
+    });
+});
+</script>
+```
+
+###### Script explanation
+
+1. **Initializing the widget class** — when initializing the widget you need to pass rootId — this is the id of the div in which the widget will be rendered
+
+**callbacks** — an optional argument, an object with a set of callbacks that fire on certain events:
+
+| Parameter | Description |
+| --- | --- |
+| onRestart | fires when redirectLink changes inside the widget, the merchant can always expect the redirectLink argument |
+| onLoad | fires when the widget has rendered and can be worked with |
+| onError | onError fires if an error occurred in the widget; the callback expects an argument that is an object with 2 keys which the widget passes to the merchant's site `{(code, message)}`, code - the error code, currently 2 codes (the message key holds error details that help with debugging) |
+| onEnd | fires when the application is submitted successfully |
+| onDeclined | fires when the order is cancelled via the cancel button |
+| onClosed | fires every time the widget is closed |
+| clientError | error on the frontend side (rendering issues) |
+| apiError | error on the backend side (500+ server errors) |
+
+2. we find the button in the DOM to which we will add the event handler
+
+```js
+const button = document.getElementById('button');
+```
+
+3. we add an event handler to the button; on click, we call the method of the previously initialized widget and render the widget, #redirectLink is formed when sending a request to /api/bnpl/preapp
+
+```js
+button.addEventListener('click', () => {
+          bnplKzApi.render({
+                redirectLink:'{domain}/scoring?preapp=135b2205-7d4d-9d09-7777-d25cdeb001aa&phone=77072302089&link=https%3A%2F%2Fwww.google.kz',
+          });
+});
+```
+
+###### Service addresses
+
+- Prod: [https://bnpl.kz/widget/index_bundle.js](https://bnpl.kz/widget/index_bundle.js)
+- Test: [https://dev.bnpl.kz/widget/index_bundle.js](https://dev.bnpl.kz/widget/index_bundle.js)

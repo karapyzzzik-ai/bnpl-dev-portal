@@ -1,0 +1,64 @@
+# Return
+
+**Condition:** the order must be in the "buyed"/"Order bought out" status
+
+- The order is delivered/bought out (order status in the system "buyed"/"order completed")
+- The merchant sends the "return" status via the API
+- The system changes the status to "return"/"returned"
+- The system changes the status to "return_final"/"return finished"
+
+**Method:** PUT
+
+**URL**
+- DEV: `https://dev.bnpl.kz/api/accounting/v1/changeStatus/json`
+- STAGE: `https://stage.bnpl.kz/api/accounting/v1/changeStatus/json`
+
+## Example request
+
+```bash
+curl -X 'PUT' \
+  'https://dev.bnpl.kz/accounting/v1/changeStatus/json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '[
+  {
+    "merchantId": "string",
+    "orders": [
+      {
+        "amount": int,
+        "orderId": "string",
+        "status": "string"
+      }
+    ]
+  }
+]'
+```
+
+## Successful response
+
+```json
+{
+  "messageId": "",
+  "SuccessfulResponses": [
+    {
+      "error": "false",
+      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "merchantOrderId": "000000"
+    }
+  ],
+  "ErrorResponses": []
+}
+```
+
+<ApiPlayground
+  method="PUT"
+  devUrl="https://dev.bnpl.kz/api/accounting/v1/changeStatus/json"
+  stageUrl="https://stage.bnpl.kz/api/accounting/v1/changeStatus/json"
+  fields={[
+    { name: 'merchantId', type: 'string', required: true },
+    { name: 'orderId', type: 'string', required: true },
+    { name: 'amount', type: 'number', required: true },
+    { name: 'status', type: 'string', required: true, defaultValue: 'return' }
+  ]}
+  lang="en"
+/>

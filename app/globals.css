@@ -1,0 +1,33 @@
+/**
+ * bnpl "Clean Light" theme accent.
+ *
+ * Nextra 4 (nextra-theme-docs@4.6.1) does NOT expose theming through classes
+ * like `.nextra-nav-container` or `a[data-active='true']` (those were guesses
+ * written against the older Nextra 3 assumption). Instead:
+ *
+ * - The brand/accent color is driven by the `<Head color={{ hue, saturation,
+ *   lightness }} />` prop in app/[lang]/layout.tsx, which sets the
+ *   `--nextra-primary-hue` / `--nextra-primary-saturation` /
+ *   `--nextra-primary-lightness` CSS variables. Every "active" state in the
+ *   theme (sidebar active item, active TOC anchor, focus rings, etc.) is
+ *   derived from those variables via Tailwind's `primary-*` color scale, so
+ *   there's no separate selector to override for "active nav link color".
+ * - The real navbar wrapper class is `.nextra-navbar` with a separate
+ *   `.nextra-navbar-blur` element providing the backdrop blur/translucency.
+ *   We flatten that here for a solid, "clean" navbar background instead of
+ *   the semi-transparent blur.
+ *
+ * --bnpl-accent is kept as a plain custom property so later tasks (e.g. the
+ * playground UI) can reuse the exact brand blue without recalculating the
+ * HSL values passed to <Head>.
+ */
+
+:root {
+  --bnpl-accent: #2563eb;
+}
+
+.nextra-navbar-blur {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: rgb(var(--nextra-bg)) !important;
+}

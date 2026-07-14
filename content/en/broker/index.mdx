@@ -1,0 +1,19 @@
+# Introduction
+
+### Service checkout process
+
+1. The broker sends information about the client and the order that needs to be scored
+2. BNPL scores the order and sends the result to the broker
+3. If scoring completes successfully and the client selects BNPL as the installment option, the broker notifies BNPL of this
+4. The broker redirects the Client to the received link, where they continue setting up the installment plan on the BNPL side
+5. The final successful order status is sent to the broker
+
+### Process flowchart
+
+![Process flowchart](https://bnpl.kz/dev-portal/_next/static/media/broker_integration.efdbcde7.png?w=3840&q=75)
+
+### Service addresses
+
+Prod: [https://bnpl.kz/api](https://bnpl.kz/api)
+
+Test: [https://dev.bnpl.kz/api](https://dev.bnpl.kz/api)

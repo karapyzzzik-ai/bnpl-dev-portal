@@ -1,0 +1,114 @@
+# Авторизация
+
+### 1. Метод авторизации для получения Bearer токена
+
+Метод: **POST**
+
+##### Пример запроса
+
+```
+curl --request POST \
+  --url https://dev.bnpl.kz/api/users/api/v1/sign-in \
+  --header 'Content-Type: application/json' \
+  --header 'accept: application/json' \
+  --data '{
+"password": "password",
+"username": "username"
+}'
+```
+
+_Если интеграция происходит на stage среде, запрос необходимо отправлять на адрес https://stage.bnpl.kz/api/users/api/v1/sign-in_
+
+##### Структура запроса
+
+| Параметр | Тип | Обязательно | Описание | Правила валидации |
+| --- | --- | --- | --- | --- |
+| username | string | да | Access токен | количество символов от 6 до 100. |
+| password | string | да | Refresh токен | количество символов от 6 до 100. |
+
+##### Положительный ответ
+
+```json
+{
+"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgwOTgzMzF9.36f4evvzDGVqIbHq34oZ5Y6uv-QPogrNMv61Po8JNA1",
+"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng",
+"accessExpiresAt": 1678098331,
+"refreshExpiresAt": 1678181131
+}
+```
+
+##### Структура положительного ответа
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| access | string | да | Access токен |
+| refresh | string | да | Refresh токен |
+| accessExpiresAt | uint | да | Access Token действует до |
+| refreshExpiresAt | uint | да | Refresh Token действует до |
+
+##### Отрицательный ответ
+
+#### HTTP 403
+
+```json
+{ "code": "ERROR", "message": "incorrect Username or Password" }
+```
+
+##### Структура отрицательного ответа
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| code | string | да | Код ошибки - "Error" |
+| message | string | да | Описание ошибки |
+
+### 2. Метод для обновления токена доступа
+
+Метод: **POST**
+
+##### Пример запроса
+
+```
+curl -X 'POST' 'https://dev.bnpl.kz/api/users/api/v1/refresh' \
+-H 'accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{
+"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng"
+}'
+```
+
+_Если интеграция происходит на stage среде, запрос необходимо отправлять на адрес https://stage.bnpl.kz/api/users/api/v1/refresh_
+
+##### Положительный ответ
+
+```json
+{
+"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgwOTgzMzF9.36f4evvzDGVqIbHq34oZ5Y6uv-QPogrNMv61Po8JNA1",
+"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng",
+"accessExpiresAt": 1678098331,
+"refreshExpiresAt": 1678181131
+}
+```
+
+##### Структура положительного ответа
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| access | string | да | Access токен |
+| refresh | string | да | Refresh токен |
+| accessExpiresAt | uint | да | Access Token действует до |
+| refreshExpiresAt | uint | да | Refresh Token действует до |
+
+##### Отрицательный ответ
+
+#### HTTP 403
+
+```json
+{ "code": "ERROR", "message": "incorrect Username or Password" }
+```
+
+##### Структура отрицательного ответа
+
+| Параметр | Тип | Обязательно | Описание |
+| --- | --- | --- | --- |
+| code | string | да | Код ошибки - "Error" |
+| message | string | да | Описание ошибки |

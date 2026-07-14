@@ -1,0 +1,119 @@
+# Installment limit on the partner's site
+
+**Installment limit on the partner's site** is a special feature of the BNPL/Installment 0-0-4 partner service, allowing the client to find out the limit available to them before actually placing an order.
+
+_A client who has received a limit can place an order within the approved amount on the partner's site, without fear of being declined._
+
+### Installment limit flow
+
+1. Onboarding screen. Entering the IIN and phone number
+
+**_The IIN and phone number must be linked in the BMG (egov.kz)_**
+
+![Onboarding screen](https://bnpl.kz/dev-portal/_next/static/media/1.403b3875.jpg)
+![Entering the IIN and phone number](https://bnpl.kz/dev-portal/_next/static/media/2.4b1b6a65.jpg)
+
+2. Confirming consent to the collection and processing of personal data via SMS code
+
+![Entering the SMS code](https://bnpl.kz/dev-portal/_next/static/media/3.eef1fe02.jpg)
+
+3. SMS code from egov.kz to get access to the client's data
+
+![Entering the Egov SMS code](https://bnpl.kz/dev-portal/_next/static/media/4.02cc1a36.jpg)
+
+4. Making the decision and providing the client with a limit
+
+![Scoring](https://bnpl.kz/dev-portal/_next/static/media/5.c5137a59.jpg)
+![Successful installment setup](https://bnpl.kz/dev-portal/_next/static/media/6.4ff59b9f.jpg)
+
+### Connecting
+
+1. Place marketing elements on the partner's site pages
+
+- Header
+- Product cards
+- Modal windows
+
+![Scoring](https://bnpl.kz/dev-portal/_next/static/media/7.68503b11.jpg)
+![Successful installment setup](https://bnpl.kz/dev-portal/_next/static/media/8.f583e5ac.jpg)
+
+2. Place the link `http://dev.bnpl.kz/qr/scoring?partnerCode=bnpl.kz&pointCode=01-0010-L1&site=partner_site` on all elements, opening in a new tab
+
+In the `site` parameter, specify the link to the page to return the client to after the limit process is complete, or a link to the site's home page.
+
+3. Set up a redirect of the client to the same page from which they went into the installment limit flow
+
+In order to return the client to the same page they came from at the end of the installment limit flow, you need to dynamically pass a link to the current page in the `site=` parameter.
+
+This can be done in the following ways:
+
+##### 3.1. Via a backend template engine
+
+If the link is generated on the server side using a template engine (for example, Twig, Blade, Smarty, etc.), you can pass the current page URL in the `site` parameter.
+
+**Example:**
+
+```html
+<a href="https://bnpl.kz/qr/scoring?partnerCode=bnpl.kz&pointCode=01-0010-L1&site=' . urlencode($current_url) . '">Go</a>
+```
+
+- **partnerCode:** your partner code.
+- **current_url:** a variable containing the URL of the current page.
+- Make sure the URL is correctly encoded to be passed in the parameter (for example, using the `urlencode()` function or its equivalents).
+
+##### 3.2. Via JavaScript on the frontend
+
+If the link cannot be generated on the server, you can dynamically add the current URL to the `site` parameter using JavaScript.
+
+**Example:**
+
+```html
+<a id="dynamic-link" href="#">Go</a>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const link = document.getElementById("dynamic-link");
+    if (link) {
+      const currentUrl = encodeURIComponent(window.location.href);
+      link.href = "https://bnpl.kz/qr/scoring?partnerCode=bnpl.kz&pointCode=01-0010-L1&site=${currentUrl}";
+}});
+</script>
+```
+
+- **window.location.href:** gets the full URL of the current page.
+- **encodeURIComponent:** encodes the URL so it is correctly passed in the parameter.
+
+##### 3.3. Via a click handler on the link
+
+If you need to add the `site` parameter only at the moment of the click, you can use an event handler.
+
+**Example:**
+
+```html
+<a id="dynamic-link" href="https://bnpl.kz/qr/scoring?partnerCode=bnpl.kz&pointCode=01-0010-L1">Go</a>
+<script>
+    const link = document.getElementById("dynamic-link");
+
+    link.addEventListener("click", function (event) {
+        // prevent following the link before the href is changed
+        event.preventDefault();
+
+        // current URL
+        const currentUrl = encodeURIComponent(window.location.href);
+
+        // updated link
+        const newLink = `${link.href}&site=${currentUrl}`;
+
+        // redirect to the updated link
+        window.location.href = newLink;
+});
+</script>
+```
+
+- The handler helps avoid sending unnecessary data if the user doesn't click the link.
+- Important: the handler should only be attached on the necessary pages.
+
+### Recommendations
+
+1. **URL encoding:** always use `encodeURIComponent` for correctly passing links.
+2. **Code minimization:** use a backend template engine where possible, to reduce the amount of client-side scripting.
+3. **Testing:** make sure links are correctly generated and transitions work on all pages.

@@ -1,0 +1,72 @@
+# Виджет
+
+## Подключение виджета
+
+- Вставить в `<head>` скрипт `<script defer="defer" src="{domain}/widget/index_bundle.js"></script>`
+- Вставить в body div с любым id: `<div id="bnplKz-root"></div>`
+- Добавить кнопку при нажатии на которую будете открывать виджет `<button id="button">Открыть виджет</button>`
+- Далее перед закрывающим тегом `</body>` вставить скрипт ниже:
+
+```html
+<script defer="defer">
+document.addEventListener('DOMContentLoaded', () => {
+    const bnplKzApi = new BnplKzApi.CPO({
+    rootId: 'bnplKz-root', //optional default 'bnplKz-root'
+    callbacks: {
+        onLoad: () => console.log('onLoad'), //optional
+        onError: ({ code, message }) => console.log('onError', code, message), // optional, code = "clientError" || "apiError"
+        onClosed: () => console.log('onClosed'), //optional
+        onEnd: () => console.log('onEnd'),
+        onRestart: (redirectLink) => console.log(redirectLink),
+        onDeclined: () => console.log('onDeclined'),
+      },
+    });
+
+    const button = document.getElementById('button');
+    button.addEventListener('click', () => {
+      bnplKzApi.render({
+        redirectLink:
+        '{domain}/scoring?preapp=135b2205-7d4d-9d09-7777-d25cdeb001aa&phone=77072302089&link=https%3A%2F%2Fwww.google.kz',
+      });
+    });
+});
+</script>
+```
+
+###### Пояснение к скрипту
+
+1. **Инициализация класса виджета** при инициализации виджета нужно передать rootId — это айди div в котором будет рендериться виджет
+
+**callbacks** — опциональный аргумент, представляющий собой объект с набором коллбэков которые отрабатывают по определенным событиям:
+
+| Параметр | Описание |
+| --- | --- |
+| onRestart | срабатывает, когда внутри виджета поменялся redirectLink, мерчант всегда может ожидать аргументом redirectLink |
+| onLoad | срабатывает, когда виджет отрендерился и с ним можно работать |
+| onError | onError срабатывает если в виджете произошла ошибка в коллбэке ожидается аргумент представляющий собой объект с 2 ключами которые виджет передает сайту мерчанту `{(code, message)}`, code - код ошибки на данный момент 2 кода (в ключе message хранятся подробности ошибки, помогут при отладке) |
+| onEnd | срабатывает при успешном оформлении заявки |
+| onDeclined | срабатывает, когда отменяют заказ по кнопке отменить |
+| onClosed | срабатывает каждый раз, когда виджет закрывают |
+| clientError | ошибка со стороны фронтенда (проблемы с рендером) |
+| apiError | ошибка со стороны бэкенда (500+ ошибки сервера) |
+
+2. находим кнопку в DOM, к которой будем добавлять обработчик события
+
+```js
+const button = document.getElementById('button');
+```
+
+3. добавляем обработчик события на кнопку, вызываем по нажатию метод ранее инициализованого виджета и рендерим виджет, #redirectLink формируется при отправке запроса на /api/bnpl/preapp
+
+```js
+button.addEventListener('click', () => {
+          bnplKzApi.render({
+                redirectLink:'{domain}/scoring?preapp=135b2205-7d4d-9d09-7777-d25cdeb001aa&phone=77072302089&link=https%3A%2F%2Fwww.google.kz',
+          });
+});
+```
+
+###### Адреса сервисов
+
+- Прод: [https://bnpl.kz/widget/index_bundle.js](https://bnpl.kz/widget/index_bundle.js)
+- Тест: [https://dev.bnpl.kz/widget/index_bundle.js](https://dev.bnpl.kz/widget/index_bundle.js)

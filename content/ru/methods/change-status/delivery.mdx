@@ -1,0 +1,69 @@
+# Доставка/Частичная доставка
+
+- Рассрочка по заказу клиента одобрена (статус completed/успешный заказ)
+- Мерчант совершает доставку товара
+- Мерчант отправляет статус "delivered" по API
+- Система изменяет статус на "delivered"/"доставлен"
+- Система изменяет статус на "buyed"/"выкуплен"
+
+**Метод:** PUT
+
+**URL**
+- DEV: `https://dev.bnpl.kz/api/accounting/v1/changeStatus/json`
+- STAGE: `https://stage.bnpl.kz/api/accounting/v1/changeStatus/json`
+
+## Пример запроса
+
+```bash
+curl -X 'PUT' \
+  'https://dev.bnpl.kz/api/accounting/v1/changeStatus/json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '[
+  {
+    "merchantId": "string",
+    "orders": [
+      {
+        "amount": int,
+        "orderId": "string",
+        "status": "string"
+      }
+    ]
+  }
+]'
+```
+
+После отправки запроса на доставку статус заказа меняется на «delivered». Статус «delivered» является промежуточным статусом системы и меняется на «buyed» (финальный успешный статус заказа) в течение 5-7 минут.
+
+В поле `amount` можно передать значение **меньше**, чем первоначальная сумма заказа, тем самым вызвав «частичную доставку». Пример: клиент оформил заказ на 100 000 тг. в рассрочку и при доставке товара/самовывозе готов взять только на 80 000 тг.
+
+Условие частичной доставки: сумма заказа должна быть не менее 500 тг.
+
+## Успешный ответ
+
+```json
+{
+  "messageId": "",
+  "SuccessfulResponses": [
+    {
+      "error": "false",
+      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "merchantOrderId": "000000"
+    }
+  ],
+  "ErrorResponses": []
+}
+```
+
+<ApiPlayground
+  method="PUT"
+  devUrl="https://dev.bnpl.kz/api/accounting/v1/changeStatus/json"
+  stageUrl="https://stage.bnpl.kz/api/accounting/v1/changeStatus/json"
+  fields={[
+    { name: 'merchantId', type: 'string', required: true },
+    { name: 'orderId', type: 'string', required: true },
+    { name: 'amount', type: 'number', required: true },
+    { name: 'status', type: 'string', required: true, defaultValue: 'delivered' }
+  ]}
+  lang="ru"
+/>

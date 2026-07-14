@@ -1,0 +1,68 @@
+# Частичный возврат
+
+**Условие:**
+1. Заказ должен быть в статусе «buyed»/«Заказ выкуплен»
+2. Сумма заказа после возврата должна быть НЕ МЕНЕЕ 500 тг.
+
+- Заказ доставлен/выкуплен (статус заказа в системе "buyed"/"заказ выполнен")
+- Мерчант отправляет статус "part_return" по API
+- Система изменяет статус на "part_return"/"частичный возврат"
+- Система изменяет статус на "buyed"/"заказ выкуплен"
+
+**Метод:** PUT
+
+**URL**
+- DEV: `https://dev.bnpl.kz/api/accounting/v1/changeStatus/json`
+- STAGE: `https://stage.bnpl.kz/api/accounting/v1/changeStatus/json`
+
+## Пример запроса
+
+```bash
+curl -X 'PUT' \
+  'https://dev.bnpl.kz/accounting/v1/changeStatus/json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '[
+  {
+    "merchantId": "string",
+    "orders": [
+      {
+        "amount": int,
+        "orderId": "string",
+        "status": "string"
+      }
+    ]
+  }
+]'
+```
+
+## Успешный ответ
+
+```json
+{
+  "messageId": "",
+  "SuccessfulResponses": [
+    {
+      "error": "false",
+      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "merchantOrderId": "000000"
+    }
+  ],
+  "ErrorResponses": []
+}
+```
+
+При полном возврате в поле `amount` передается **сумма заказа после возврата**. Пример: сумма заказа 100 000 тг. и клиент хочет произвести возврат на 20 000 тг. В сумме заказа передаем 80 000 тг. — `"amount": 80000`.
+
+<ApiPlayground
+  method="PUT"
+  devUrl="https://dev.bnpl.kz/api/accounting/v1/changeStatus/json"
+  stageUrl="https://stage.bnpl.kz/api/accounting/v1/changeStatus/json"
+  fields={[
+    { name: 'merchantId', type: 'string', required: true },
+    { name: 'orderId', type: 'string', required: true },
+    { name: 'amount', type: 'number', required: true },
+    { name: 'status', type: 'string', required: true, defaultValue: 'part_return' }
+  ]}
+  lang="ru"
+/>

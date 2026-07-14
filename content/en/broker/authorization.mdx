@@ -1,0 +1,110 @@
+# Authorization
+
+### 1. Authorization method for obtaining a Bearer token
+
+Method: **POST**
+
+##### Example request
+
+```
+curl --request POST \
+  --url https://dev.bnpl.kz/api/users/api/v1/sign-in \
+  --header 'Content-Type: application/json' \
+  --header 'accept: application/json' \
+  --data '{
+"password": "password",
+"username": "username"
+}'
+```
+
+##### Request structure
+
+| Parameter | Type | Required | Description | Validation rules |
+| --- | --- | --- | --- | --- |
+| username | string | yes | Access token | number of characters from 6 to 100. |
+| password | string | yes | Refresh token | number of characters from 6 to 100. |
+
+##### Positive response
+
+```json
+{
+"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgwOTgzMzF9.36f4evvzDGVqIbHq34oZ5Y6uv-QPogrNMv61Po8JNA1",
+"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng",
+"accessExpiresAt": 1678098331,
+"refreshExpiresAt": 1678181131
+}
+```
+
+##### Positive response structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| access | string | yes | Access token |
+| refresh | string | yes | Refresh token |
+| accessExpiresAt | uint | yes | Access Token is valid until |
+| refreshExpiresAt | uint | yes | Refresh Token is valid until |
+
+##### Negative response
+
+#### HTTP 403
+
+```json
+{ "code": "ERROR", "message": "incorrect Username or Password" }
+```
+
+##### Negative response structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| code | string | yes | Error code - "Error" |
+| message | string | yes | Error description |
+
+### 2. Method for refreshing the access token
+
+Method: **POST**
+
+##### Example request
+
+```
+curl -X 'POST' 'https://dev.bnpl.kz/api/users/api/v1/refresh' \
+-H 'accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{
+"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng"
+}'
+```
+
+##### Positive response
+
+```json
+{
+"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgwOTgzMzF9.36f4evvzDGVqIbHq34oZ5Y6uv-QPogrNMv61Po8JNA1",
+"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiI4NDhkODE0NC02ZjFlLTQ3NWMtODY3Mi05MzhlYzUyNmZlNWMiLCJleHAiOjE2NzgxODExMzF9.EA1sAShMgTBHtwwcIQAvEP-zNNhoYFutTYQyTD4OBng",
+"accessExpiresAt": 1678098331,
+"refreshExpiresAt": 1678181131
+}
+```
+
+##### Positive response structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| access | string | yes | Access token |
+| refresh | string | yes | Refresh token |
+| accessExpiresAt | uint | yes | Access Token is valid until |
+| refreshExpiresAt | uint | yes | Refresh Token is valid until |
+
+##### Negative response
+
+#### HTTP 403
+
+```json
+{ "code": "ERROR", "message": "incorrect Username or Password" }
+```
+
+##### Negative response structure
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| code | string | yes | Error code - "Error" |
+| message | string | yes | Error description |
