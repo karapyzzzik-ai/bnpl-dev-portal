@@ -93,10 +93,72 @@ describe('buildRequestBody', () => {
 
     expect(result).toEqual({ merchantId: 'test.kz', somethingElse: 'x' })
   })
+
+  it('nests grouped fields under an array key, matching new-preapp.mdx\'s documented items[] body', () => {
+    // Real shape from content/ru/broker/new-preapp.mdx (and content/en/broker/new-preapp.mdx)
+    const fields = [
+      { name: 'partnerCode', type: 'string' as const, required: true },
+      { name: 'billNumber', type: 'string' as const, required: true },
+      { name: 'billAmount', type: 'number' as const, required: true },
+      { name: 'expiresAt', type: 'string' as const, required: false },
+      { name: 'successRedirect', type: 'string' as const, required: true },
+      { name: 'failRedirect', type: 'string' as const, required: false },
+      { name: 'postLink', type: 'string' as const, required: true },
+      { name: 'iin', type: 'string' as const, required: true },
+      { name: 'phoneNumber', type: 'string' as const, required: true },
+      { name: 'itemId', type: 'string' as const, required: true, group: 'items' },
+      { name: 'itemName', type: 'string' as const, required: true, group: 'items' },
+      { name: 'itemCategory', type: 'string' as const, required: false, group: 'items' },
+      { name: 'itemQuantity', type: 'number' as const, required: true, group: 'items' },
+      { name: 'itemPrice', type: 'number' as const, required: true, group: 'items' },
+      { name: 'itemSum', type: 'number' as const, required: true, group: 'items' }
+    ]
+    const values = {
+      partnerCode: 'test-merchant',
+      billNumber: '000000',
+      billAmount: '80000',
+      expiresAt: '2023-09-07T10:49:10.156Z',
+      successRedirect: 'https://example.com/success',
+      failRedirect: 'https://example.com/fail',
+      postLink: 'https://example.com/postlink',
+      iin: '000000000000',
+      phoneNumber: '77000000000',
+      itemId: 'item-1',
+      itemName: 'Test item',
+      itemCategory: 'electronics',
+      itemQuantity: '2',
+      itemPrice: '40000',
+      itemSum: '80000'
+    }
+
+    const result = buildRequestBody(fields, values)
+
+    expect(result).toEqual({
+      partnerCode: 'test-merchant',
+      billNumber: '000000',
+      billAmount: 80000,
+      expiresAt: '2023-09-07T10:49:10.156Z',
+      successRedirect: 'https://example.com/success',
+      failRedirect: 'https://example.com/fail',
+      postLink: 'https://example.com/postlink',
+      iin: '000000000000',
+      phoneNumber: '77000000000',
+      items: [
+        {
+          itemId: 'item-1',
+          itemName: 'Test item',
+          itemCategory: 'electronics',
+          itemQuantity: 2,
+          itemPrice: 40000,
+          itemSum: 80000
+        }
+      ]
+    })
+  })
 })
 
 describe('classifyFetchError', () => {
-  it('classifies a TypeError with "Failed to fetch" as a likely CORS failure', () => {
+  it('classifies a TypeError with "Failed to fetch" as a likely CORS failure (defaults to ru)', () => {
     const err = new TypeError('Failed to fetch')
     expect(classifyFetchError(err)).toEqual({
       kind: 'cors',
@@ -113,5 +175,27 @@ describe('classifyFetchError', () => {
       kind: 'network',
       message: 'socket hang up'
     })
+  })
+
+  it('returns the Russian CORS message when lang is "ru"', () => {
+    const err = new TypeError('Failed to fetch')
+    expect(classifyFetchError(err, 'ru').message).toBe(
+      'Запрос заблокирован браузером (вероятно, CORS). Используйте curl-команду ниже.'
+    )
+  })
+
+  it('returns the English CORS message when lang is "en"', () => {
+    const err = new TypeError('Failed to fetch')
+    expect(classifyFetchError(err, 'en').message).toBe(
+      'The request was blocked by the browser (likely CORS). Use the curl command below.'
+    )
+  })
+
+  it('returns the Russian unknown-error message when lang is "ru"', () => {
+    expect(classifyFetchError('boom', 'ru').message).toBe('Неизвестная ошибка запроса.')
+  })
+
+  it('returns the English unknown-error message when lang is "en"', () => {
+    expect(classifyFetchError('boom', 'en').message).toBe('Unknown request error.')
   })
 })

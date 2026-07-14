@@ -110,11 +110,12 @@
     { name: 'postLink', type: 'string', required: true },
     { name: 'iin', type: 'string', required: true },
     { name: 'phoneNumber', type: 'string', required: true },
-    { name: 'itemId', type: 'string', required: true },
-    { name: 'itemName', type: 'string', required: true },
-    { name: 'itemCategory', type: 'string', required: false },
-    { name: 'itemQuantity', type: 'number', required: true },
-    { name: 'itemPrice', type: 'number', required: true },
-    { name: 'itemSum', type: 'number', required: true }
+    { name: 'itemId', type: 'string', required: true, group: 'items' },
+    { name: 'itemName', type: 'string', required: true, group: 'items' },
+    { name: 'itemCategory', type: 'string', required: false, group: 'items' },
+    { name: 'itemQuantity', type: 'number', required: true, group: 'items' },
+    { name: 'itemPrice', type: 'number', required: true, group: 'items' },
+    { name: 'itemSum', type: 'number', required: true, group: 'items' }
   ]}
+  lang="ru"
 />
