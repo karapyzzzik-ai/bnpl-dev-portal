@@ -21,8 +21,8 @@ export default async function RootLayout({
   const { lang } = await params
   return (
     <html lang={lang} dir="ltr" suppressHydrationWarning>
-      {/* bnpl "Clean Light" brand accent (~#2563eb) — see app/globals.css for --bnpl-accent */}
-      <Head color={{ hue: 221, saturation: 83, lightness: 53 }} />
+      {/* bnpl real brand accent (~#1F9E5A, from the merchant cabinet UI) — see app/globals.css for --bnpl-accent */}
+      <Head color={{ hue: 148, saturation: 67, lightness: 37 }} />
       <body>
         <Layout
           navbar={navbar}

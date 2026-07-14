@@ -18,12 +18,14 @@
  *   the semi-transparent blur.
  *
  * --bnpl-accent is kept as a plain custom property so later tasks (e.g. the
- * playground UI) can reuse the exact brand blue without recalculating the
- * HSL values passed to <Head>.
+ * playground UI) can reuse the exact brand green without recalculating the
+ * HSL values passed to <Head>. Color taken from the real bnpl merchant
+ * cabinet UI (dark navy #1B2A41 sidebar, green #1F9E5A primary buttons) —
+ * this accent-only pass adopts just the green; the navy is not applied here.
  */
 
 :root {
-  --bnpl-accent: #2563eb;
+  --bnpl-accent: #1f9e5a;
 }
 
 .nextra-navbar-blur {
