@@ -13,9 +13,8 @@ import {
  * Always-visible "where will this actually go" banner. Some pages (e.g. the broker
  * new-preapp/approve docs) set `stageUrl` to a real production domain because that
  * section has no separate staging environment. Rather than special-case any one page,
- * every ApiPlayground shows the fully-resolved URL next to the DEV/STAGE toggle AND
- * again right above the Send button, so a user always sees exactly where their click
- * will send a request before they click it.
+ * every ApiPlayground shows the fully-resolved URL right above the Send button, so a
+ * user always sees exactly where their click will send a request before they click it.
  */
 function ResolvedUrlBanner({ url, label }: { url: string; label: string }) {
   return (
@@ -91,7 +90,6 @@ export function ApiPlayground({
       <label>
         <input type="radio" checked={env === 'stage'} onChange={() => setEnv('stage')} /> STAGE
       </label>
-      <ResolvedUrlBanner url={url} label={t.resolvedUrlLabel} />
       {fields.map(field => (
         <div key={field.name} style={{ marginTop: '0.5rem' }}>
           <label>

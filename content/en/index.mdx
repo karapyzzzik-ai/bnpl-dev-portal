@@ -1,3 +1,47 @@
-# bnpl developers
+---
+asIndexPage: true
+sidebarTitle: Introduction
+---
 
-Integration documentation for bnpl.kz: authorization, scoring, order status management, and installment limits.
+# Introduction
+
+The "[BNPL.kz](https://bnpl.kz)" product is a payment module on the Partner's website that allows the Partner's Client to purchase **items on installment for 4 months, paying in equal monthly payments.**
+
+### Glossary
+
+- **Client / User** - a user of the partner's (merchant's) platform
+- **Merchant / Partner** - a user of the partner's (merchant's) platform
+- **BNPL** - in the context of this document, BNPL refers to the service (Backend BNPL). General concept: BNPL (Buy Now Pay Later) is a deferred-payment service for purchases from partners, which differs from a loan or installment plan in that it does not require spending time on a loan application (which has a more complex process) and lets the client use the service without paying interest.
+
+### Service checkout process
+
+1. The user assembles a cart on the Merchant's platform, selecting BNPL as the payment method.
+2. When the "Pay" button is clicked, the user is redirected to the BNPL checkout page / a BNPL modal window opens.
+3. The user enters their details: phone number, IIN, gives consent to the collection and processing of personal data, and accepts the installment terms.
+4. BNPL verifies the user's data against the BMG registry (matching the IIN and phone number).
+   - a. If the IIN and phone number do not match, the client is shown a corresponding notification.
+   - b. If they match, the process continues from step 5.
+5. The client proceeds to the biometry screen and passes verification.
+6. The client proceeds to the Egov code entry screen.
+7. A 6-digit code is sent to the specified phone number.
+8. The client enters the code. By entering the code, the client consents to access to their digital documents.
+9. A client evaluation result is generated in the form of a scoring score.
+10. The merchant receives the scoring result and decides whether to approve or decline further checkout.
+    - a. If declined, the user can return to the Merchant's platform and choose another payment method.
+    - b. If approved, the process continues from step 11.
+11. The client proceeds to the "Installment successfully arranged" screen.
+12. After successful checkout, the user can return to the order page on the Merchant's platform.
+
+### Full plugin process flowchart
+
+![Process flowchart](https://bnpl.kz/dev-portal/_next/static/media/broker_integration_scheme.9b930fd7.png)
+
+### Light plugin process flowchart
+
+![Process flowchart](https://bnpl.kz/dev-portal/_next/static/media/broker_integration_scheme_light.cce836c7.png)
+
+### Service addresses
+
+Prod: [https://bnpl.kz/api](https://bnpl.kz/api)
+
+Stage: [https://stage.bnpl.kz/api](https://stage.bnpl.kz/api)

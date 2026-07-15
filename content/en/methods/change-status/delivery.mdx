@@ -24,7 +24,7 @@ curl -X 'PUT' \
     "merchantId": "string",
     "orders": [
       {
-        "amount": int,
+        "amount": 80000,
         "orderId": "string",
         "status": "string"
       }
@@ -47,7 +47,7 @@ Partial delivery condition: the order amount must be at least 500 tg.
   "SuccessfulResponses": [
     {
       "error": "false",
-      "msg": "cтатус заказа по MerchantId = test.kz и MerchantOrderId = 000000 успешно обновлен",
+      "msg": "order status for MerchantId = test.kz and MerchantOrderId = 000000 successfully updated",
       "merchantOrderId": "000000"
     }
   ],

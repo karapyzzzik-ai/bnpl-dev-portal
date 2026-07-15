@@ -1,3 +1,8 @@
+---
+asIndexPage: true
+sidebarTitle: BCC Mall
+---
+
 # Process of connecting to the BCC Mall online shopping mall via Google Feed
 
 1. To test correct processing of the feed, you need to provide a direct URL to it.
@@ -74,12 +79,12 @@ Table describing the feed tags used in BCC Mall.
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
     <channel>
         <item>
-            <!--Обязательные-->
+            <!--Required-->
             <g:id>100555</g:id>
-            <g:title>Название товара</g:title>
+            <g:title>Product name</g:title>
             <g:description>
                 <![CDATA[
-                    Это описание товара.
+                    This is the product description.
                 ]]>
             </g:description>
             <g:link>https://example.com/link-to-product-page</g:link>
@@ -87,8 +92,8 @@ Table describing the feed tags used in BCC Mall.
             <g:availability>In stock</g:availability>
             <g:price>9 999.0 KZT</g:price>
 
-            <!--Дополнительные-->
-            <g:product_type>Книги > Изучение языков > Какая-то литература</g:product_type>
+            <!--Additional-->
+            <g:product_type>Books > Language learning > Some literature</g:product_type>
             <g:brand>Apple</g:brand>
             <g:sale_price>9 899.0 KZT</g:sale_price>
             <g:sale_price_effective_date>2023-09-25T00:00:00+0600/2023-09-30T23:59:00+0600</g:sale_price_effective_date>
@@ -98,18 +103,18 @@ Table describing the feed tags used in BCC Mall.
             <g:additional_image_link>https://example.com/images/additional-image-2.jpg</g:additional_image_link>
             <g:availability_date>2023-09-01T00:00:00+0600</g:availability_date>
 
-            <!--Характеристики товара-->
+            <!--Product characteristics-->
             <g:product_detail>
-                <g:section_name>Название группы</g:section_name>
-                <g:attribute_name>Артикул товара</g:attribute_name>
+                <g:section_name>Group name</g:section_name>
+                <g:attribute_name>Product SKU</g:attribute_name>
                 <g:attribute_value>1000</g:attribute_value>
             </g:product_detail>
             <g:product_detail>
-                <g:attribute_name>Жанр</g:attribute_name>
-                <g:attribute_value>Какая-то литература</g:attribute_value>
+                <g:attribute_name>Genre</g:attribute_name>
+                <g:attribute_value>Some literature</g:attribute_value>
             </g:product_detail>
 
-            <!--Параметры товара (зависит от типа товара) -->
+            <!--Product parameters (depend on product type) -->
             <g:item_group_id>100554</g:item_group_id>
             <g:adult>no</g:adult>
             <g:energy_efficiency_class>A++</g:energy_efficiency_class>
@@ -127,14 +132,14 @@ Table describing the feed tags used in BCC Mall.
             <g:product_width>30 cm</g:product_width>
             <g:product_height>170 cm</g:product_height>
             <g:product_weight>5 kg</g:product_weight>
-            <g:product_highlight>Короткое описание ключевых характеристик</g:product_highlight>
+            <g:product_highlight>Short description of key characteristics</g:product_highlight>
 
-          <!--Точки самовывоза товара-->
+          <!--Product pickup points-->
             <bnpl:pickup>
                 <bnpl:id>1</bnpl:id>
-                <bnpl:region>Акмолинская область</bnpl:region>
-                <bnpl:city>Кокшетау</bnpl:city>
-                <bnpl:street>Абая 1</bnpl:street>
+                <bnpl:region>Akmola region</bnpl:region>
+                <bnpl:city>Kokshetau</bnpl:city>
+                <bnpl:street>Abaya 1</bnpl:street>
                 <bnpl:building>100</bnpl:building>
                 <bnpl:apartment>1</bnpl:apartment>
                 <bnpl:available>yes</bnpl:available>
@@ -143,14 +148,14 @@ Table describing the feed tags used in BCC Mall.
             <bnpl:pickup>
                 <bnpl:id>2</bnpl:id>
                 <bnpl:region></bnpl:region>
-                <bnpl:city>Алматы</bnpl:city>
-                <bnpl:street>Абая 1</bnpl:street>
+                <bnpl:city>Almaty</bnpl:city>
+                <bnpl:street>Abaya 1</bnpl:street>
                 <bnpl:building>100</bnpl:building>
                 <bnpl:apartment></bnpl:apartment>
                 <bnpl:available>no</bnpl:available>
             </bnpl:pickup>
 
-            <bnpl:collection>Осень-зима 2024</bnpl:collection>
+            <bnpl:collection>Autumn-winter 2024</bnpl:collection>
         </item>
     </channel>
 </rss>
@@ -168,17 +173,17 @@ For correct division of products in BCC Mall, we recommend adding additional inf
 For example, take two identical products with a different volume: one 50 ml, the other 100 ml, then the feed layout would look as follows:
 
 ```xml
-<!--Указание объема:-->
+<!--Specifying volume:-->
 <g:product_detail>
-    <g:section_name>Название группы атрибута</g:section_name>
-    <g:attribute_name>Объем</g:attribute_name>
-    <g:attribute_value>50 мл</g:attribute_value>
+    <g:section_name>Attribute group name</g:section_name>
+    <g:attribute_name>Volume</g:attribute_name>
+    <g:attribute_value>50 ml</g:attribute_value>
 </g:product_detail>
 
-<!--Указание артикула товара:-->
+<!--Specifying product SKU:-->
 <g:product_detail>
-    <g:section_name>Название группы атрибута</g:section_name>
-    <g:attribute_name>Артикул товара</g:attribute_name>
+    <g:section_name>Attribute group name</g:section_name>
+    <g:attribute_name>Product SKU</g:attribute_name>
     <g:attribute_value>8411061059548</g:attribute_value>
 </g:product_detail>
 ```
